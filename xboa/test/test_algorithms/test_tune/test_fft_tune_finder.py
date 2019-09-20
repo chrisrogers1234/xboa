@@ -32,7 +32,7 @@ def matrix(phi_x, num_turns):
         matrix_list.append(matrix*matrix_list[-1])
         for j in range(6):
             if math.isnan(matrix_list[-1][j, j]):
-                print("ARG", i, matrix_list[-1], '\n\n', matrix_list[-5])
+                print(("ARG", i, matrix_list[-1], '\n\n', matrix_list[-5]))
                 raise ValueError("ARG")
     matrix_list = matrix_list
     offset = numpy.matrix([10., 7., 0., 0., 0., 1000.])

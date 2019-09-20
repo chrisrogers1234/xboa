@@ -37,7 +37,7 @@ import atexit
 import time
 import signal
 import ctypes
-import config
+from . import config
 try:
     import ROOT
 except ImportError:
@@ -64,12 +64,12 @@ kill_subprocesses_at_exit = True
 
 pdg_pid_to_muon1 = {-13:'mu+'}
 muon1_pid_to_pdg = {}
-for k,v in pdg_pid_to_muon1.iteritems():
+for k,v in pdg_pid_to_muon1.items():
   muon1_pid_to_pdg[v] = k
 
 icool_pid_to_pdg = {0:0, 1:-11, 2:-13, 3:211, 4:321, 5:2212, -1:11, -2:13, -3:-211, -4:-321, -5:-2212};
 pdg_pid_to_icool = {};
-for k,v in icool_pid_to_pdg.iteritems():
+for k,v in icool_pid_to_pdg.items():
   pdg_pid_to_icool[v] = k;
 
 #* MARS PARTICLE ID (JJ):
@@ -80,7 +80,7 @@ for k,v in icool_pid_to_pdg.iteritems():
 
 mars_pid_to_pdg  = {1:2212, 2:2112, 3:211, 4:-211, 5:321, 6:-321, 7:-13, 8:13, 9:22, 10:11, 11:-11, 12:-2212, 13:111, 14:1000010020, 15:1000010030, 16:1000020030, 17:1000020040, 18:14, 19:-14, 20:12, 21:-12, 22:130, 23:310, 24:311, 25:-311,26:3122,27:-3122,28:0,29:0,30:0,31:-2112,32:0,33:0,34:0,35:0,36:0,38:0,39:0,40:0};
 pdg_pid_to_mars  = {}
-for k,v in mars_pid_to_pdg.iteritems():
+for k,v in mars_pid_to_pdg.items():
   pdg_pid_to_mars[v] = k;
 
 pdg_pid_to_mass  = {0:0, 11:0.510998910, 12:0., 13:105.6583668, 14:0., 22:0., 111:134.9766, 211:139.57018, 321:493.667, 2112:939.56536, 2212:938.271996, 1000010020:1876.1239, 1000010030:2809.432, 1000020030:2809.41346, 1000020040: 3728.4001, 130:497.614, 310:497.614, 311:497.614, 3122:1115.683}
@@ -150,7 +150,7 @@ def substitute(file_name_in, file_name_out, switch_dict):
   fin  = open(file_name_in,  'r')
   fout = open(file_name_out, 'w')
   for line in fin:
-    for key, value in switch_dict.iteritems():
+    for key, value in switch_dict.items():
       line = line.replace(str(key), str(value))
     fout.write(line)
   fin.close()
@@ -230,7 +230,7 @@ def nd_newton_raphson2(y_function, y_tolerances_list, x_start_values_list, x_del
     y_magnitude_squared = numpy.vdot(y_test, y_test)
     for i in range( len(x_start_values_list) ):
       if abs(delta_x[0,i]) < float_tolerance:
-        print 'Warning - returned without convergence; delta_x',str(delta_x),'is below float tolerance'
+        print('Warning - returned without convergence; delta_x',str(delta_x),'is below float tolerance')
         return x_list[0]
       for j in range( len(y_tolerances_list) ):
         jacobian[j,i] =  (y_x[i+1][j] - y_x[0][j])/delta_x[0,i]
@@ -238,11 +238,11 @@ def nd_newton_raphson2(y_function, y_tolerances_list, x_start_values_list, x_del
     try:
       delta_x = -(linalg.inv(jacobian)*y_x0.transpose()).transpose()
     except:
-      print 'Newton-Raphson failed with (singular?) jacobian\n',jacobian,'\nbailing out'
-      print 'x:',x_list[0],'   y(x):',y_x[0],'   dx:',delta_x
+      print('Newton-Raphson failed with (singular?) jacobian\n',jacobian,'\nbailing out')
+      print('x:',x_list[0],'   y(x):',y_x[0],'   dx:',delta_x)
       return x_list[0]
     done  = True
-    if verbose: print 'x:',x_list[0],'   y(x):',y_x[0],'   dx:',delta_x
+    if verbose: print('x:',x_list[0],'   y(x):',y_x[0],'   dx:',delta_x)
     for i in range( len(x_start_values_list) ):
       if abs(y_x[0][i]) > y_tolerances_list[i]: 
         done = False
@@ -731,13 +731,13 @@ def wait_for_root():
   """
   Force python to halt processing until ROOT windows are closed
   """
-  print 'Close ROOT windows to continue'
+  print('Close ROOT windows to continue')
   root_done = False
   while not root_done:
       root_done = True
       for canvas in _canvas_persistent:
           if not canvas == None:
-              print canvas
+              print(canvas)
               root_done = False
       time.sleep(0.01)
 
@@ -872,7 +872,7 @@ def make_shell(n_per_dimension, ellipse, mean = None):
   config.has_numpy()
   n_dimensions = numpy.shape(ellipse)[0]
   grid         = make_grid(n_dimensions, n_per_dimension)
-  print "GRID\n", grid
+  print("GRID\n", grid)
   if mean.any() == None:
       mean = numpy.zeros((n_dimensions,))
   shell        = []
@@ -896,10 +896,10 @@ def normalise_vector(vector, matrix_inverse):
   """
   config.has_numpy()
   scale  = 1./(vector * matrix_inverse * vector.transpose())[0,0]**0.5
-  print vector, scale,
-  if scale != scale: raise(ValueError("Bad input - vector or matrix magnitude 0")) #isnan and isinf not available in 2.5
+  print(vector, scale, end=' ')
+  if scale != scale: raise ValueError #isnan and isinf not available in 2.5
   vector = vector*scale
-  print vector, vector * matrix_inverse * vector.transpose()
+  print(vector, vector * matrix_inverse * vector.transpose())
   return vector
 
 def __function_with_queue(args):
@@ -1033,13 +1033,13 @@ def fit_ellipse(points, eps_cut, weights=None, max_number_of_iterations = 10, ve
             in_cut = _update_fit_ellipse_cut(points, mat_inv, mean, eps_cut)
     except Exception:
         if verbose:
-            print "xboa.common.fit_ellipse(...) failed to converge; final iteration as follows."
+            print("xboa.common.fit_ellipse(...) failed to converge; final iteration as follows.")
             sys.excepthook(*sys.exc_info())
     if verbose:
-        print 'Weight in cut:\n', _sum_weight(weights, in_cut)
-        print "Means:\n", mean
-        print "Ellipse:\n", cov
-        print "Number of iterations:\n", iterations
+        print('Weight in cut:\n', _sum_weight(weights, in_cut))
+        print("Means:\n", mean)
+        print("Ellipse:\n", cov)
+        print("Number of iterations:\n", iterations)
     return mean, cov
 
 def make_root_ellipse_function(mean, cov, contours=None, xmin=-1e3, xmax=1e3, ymin=-1e3, ymax=1e3):
@@ -1109,20 +1109,20 @@ def common_overview_doc(verbose = False):
 
   if verbose:
     dir_common = dir(sys.modules[__name__])
-    print 'The following functions and data are in common but not in common_overview_doc:'
+    print('The following functions and data are in common but not in common_overview_doc:')
     for func in dir_common:
       found = False
-      for func_sublist in function_list.values():
+      for func_sublist in list(function_list.values()):
         if func in func_sublist: found = True
-      if not found: print func,
-    print '\n'
+      if not found: print(func, end=' ')
+    print('\n')
 
-    print 'The following functions and data are in common_overview_doc but not in Common:'
-    for func_sublist in function_list.values():
+    print('The following functions and data are in common_overview_doc but not in Common:')
+    for func_sublist in list(function_list.values()):
       for func in func_sublist:
         if func not in dir_common:
-          print func,
-    print
+          print(func, end=' ')
+    print()
 
   doc = common_doc    
   for key in name_list:

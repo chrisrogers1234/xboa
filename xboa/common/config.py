@@ -50,16 +50,16 @@ except ImportError:
   PACKAGES["json"] = False
 
 def print_config():
-    print "XBOA Version", xboa.__version__
-    print "Python", sys.version.replace('\n', ' ')
-    print "Following third party libraries are available:"
+    print("XBOA Version", xboa.__version__)
+    print("Python", sys.version.replace('\n', ' '))
+    print("Following third party libraries are available:")
     for package in PACKAGES:
         if PACKAGES[package]:
-            print "   ", package
-    print "Following third party libraries are NOT available:"
+            print("   ", package)
+    print("Following third party libraries are NOT available:")
     for package in PACKAGES:
         if not PACKAGES[package]:
-            print "   ", package
+            print("   ", package)
 
 def has_multiprocessing():
   """Raise an exception if multiprocessing libraries have not been imported properly"""

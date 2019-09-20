@@ -54,13 +54,13 @@ def find_closed_orbit():
     """
     Find the closed orbit in x and y
     """
-    print """
+    print("""
     We start with a hit displaced from the closed orbit by 1 mm in x and y,
     track it through the lattice and examine the output, try to fit an ellipse
     to the output. The iteration finishes if either the signal noise is larger
     than the ellipse, we reach the numerical precision limit of the numpy
     library or we reach the maximum number of iterations (default 100).
-    """
+    """)
     closed_orbit_hit, tracking = get_tracking_object()
     test_hit = closed_orbit_hit
     test_hit["x"] += 1.
@@ -71,7 +71,7 @@ def find_closed_orbit():
                                                          max_iterations=10)
     canvas = None
     for i, my_co in enumerate(co_generator):
-        print "gen", i
+        print("gen", i)
         canvas, hist, ellipse, graph = my_co.plot_ellipse(
                                                    "x", "x'",
                                                    "mm", "", canvas=canvas)

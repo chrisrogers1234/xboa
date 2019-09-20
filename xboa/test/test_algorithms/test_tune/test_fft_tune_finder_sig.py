@@ -46,7 +46,7 @@ def _bins_list(grid):
     bins += [(grid[i]+grid[i+1])/2. for i in range(len(grid)-1)]
     bins += [grid[-1]+(grid[-1]-grid[-2])/2.]
     bins = [float(x) for x in bins]
-    print bins
+    print(bins)
     bins = array.array('d', bins)
     return bins
 
@@ -88,10 +88,10 @@ class FTTuneSigTestCase(unittest.TestCase):
                     if abs(tune-0.1) < 1e-2:
                         success += 1
                 hist.Fill(n, noise, success)
-                print n, noise, success
+                print(n, noise, success)
         hist.Draw("COLZ")
         canvas.Update()
-        raw_input()
+        input()
 
     def _test_get_tune_walk(self):
         # check basic tune calculation in the presence of a systematic walk
@@ -121,16 +121,16 @@ class FTTuneSigTestCase(unittest.TestCase):
                     if abs(tune-ref_tune) < 1e-2:
                         success += 1
                     else:
-                        print "  TUNE", tune
+                        print("  TUNE", tune)
                     if n == 500 and abs(walk-0.1) < 1e-3 and i < 4:
                         ft.plot_signal("SIGNAL")
                         ft.plot_fft("FT")
                 hist.Fill(n, walk, success)
-                print n, noise, walk, success
+                print(n, noise, walk, success)
         canvas.cd()
         hist.Draw("COLZ")
         canvas.Update()
-        raw_input()
+        input()
 
     def _test_get_tune_double_freq(self):
         ref_tune = [0.01, 0.001]
@@ -139,21 +139,21 @@ class FTTuneSigTestCase(unittest.TestCase):
         n_signals = 20000
         noise = 1.0
         for i in range(1):
-            print "Generating", i
+            print("Generating", i)
             sig = SignalGenerator(n_signals, ref_tune, ref_magnitude, ref_phase)
             sig.signal_noise = noise
             ft = FFTTuneFinder(peak_finder = WindowPeakFinder(n_signals/1000+5, 10.))
             ft.u = sig.generate_signal()
-            print "Getting tune", i
+            print("Getting tune", i)
             try:
                 tune = ft.get_tune(1.)
             except ValueError:
                 tune = -1.
             for i in range(len(ft.peak_x_list)):
-                print ft.peak_x_list[i], ft.peak_y_list[i]
+                print(ft.peak_x_list[i], ft.peak_y_list[i])
             ft.plot_signal("SIGNAL")
             ft.plot_fft("FT")
-        raw_input()
+        input()
 
 
 if __name__ == "__main__":

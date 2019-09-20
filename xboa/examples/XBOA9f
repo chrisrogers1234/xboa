@@ -93,8 +93,8 @@ try:
   from xboa.hit import Hit
   import xboa.bunch
   from xboa.bunch import Bunch
-except ImportError, error:
-  print 'Error during x-boa import. Check your x-boa installation.'
+except ImportError as error:
+  print('Error during x-boa import. Check your x-boa installation.')
   raise error
 
 try:
@@ -105,7 +105,7 @@ try:
   import string
   import exceptions
 except ImportError:
-  print 'Error during python import. Check your python installation.'
+  print('Error during python import. Check your python installation.')
   raise ImportError
 
 def ecalc9f(data_filename_string, data_filetype_string, control_filename_string, output_filename_string, plot_format, end_cut, weight_filename_string, weight_filetype_string, weight_use_ev_number, use_ref_p_in_cut):
@@ -115,11 +115,11 @@ def ecalc9f(data_filename_string, data_filetype_string, control_filename_string,
   config.has_numpy()
   control_data = read_ecalc9_inp(control_filename_string)
   if len(control_data) < 1: raise IOError('Failed to read control data file '+str(control_filename_string))
-  print control_data
+  print(control_data)
   if abs(control_data['sigmacut']) > 0.0000000001 or control_data['wrnew9'] or control_data['pzcorr']:
     raise NotImplementedError('sigmacut, wrnew9 and pzcorr are disabled for now - ask the devs and they will implement it')
 
-  print 'Reading file ',data_filename_string,' of type ',data_filetype_string
+  print('Reading file ',data_filename_string,' of type ',data_filetype_string)
   bunch_list   = Bunch.new_list_from_read_builtin(data_filetype_string, data_filename_string)
   if len(bunch_list) < 1: raise IOError('Failed to read input data')
   bunch_out    = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
@@ -129,12 +129,12 @@ def ecalc9f(data_filename_string, data_filetype_string, control_filename_string,
   
   for bunch in bunch_list:
     try:
-      print bunch
+      print(bunch)
       get_bunch_data(control_data, bunch_out, bunch, use_ref_p_in_cut)
     except:
       if sys.exc_info()[0] == exceptions.KeyboardInterrupt: raise exceptions.KeyboardInterrupt
       sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
-      print 'Error handling station'
+      print('Error handling station')
   Common.multisort(bunch_out)
   type_to_format = {type(0):'%4d', type(0.0):'%.3e'}
   for i in range(len(bunch_out[0])):
@@ -146,11 +146,11 @@ def ecalc9f(data_filename_string, data_filetype_string, control_filename_string,
     try:
       make_root_plots(bunch_out, bunch_list, plot_format)
     except ImportError:
-      print 'Failed to make plots using matplot - trying ROOT instead...'
+      print('Failed to make plots using matplot - trying ROOT instead...')
       try:
         make_matplot_plots(bunch_out, bunch_list, plot_format)
       except ImportError:
-        print 'Failed to make plots using ROOT too - no plots will be made...'
+        print('Failed to make plots using ROOT too - no plots will be made...')
   del(bunch_list) #force python to clean up most of the allocated memory
   return control_data
 
@@ -160,7 +160,7 @@ def weight_handler(end_cut, weight_filename_string, weight_filetype_string, weig
   """
     
   if weight_filename_string != None:
-    print 'Reading weight file ',weight_filename_string,' of type ',weight_filetype_string
+    print('Reading weight file ',weight_filename_string,' of type ',weight_filetype_string)
     weight_bunch = Bunch.new_from_read_builtin(weight_filetype_string, weight_filename_string)
     if weight_use_ev_number:
       for i in range( len(weight_bunch) ):
@@ -170,7 +170,7 @@ def weight_handler(end_cut, weight_filename_string, weight_filetype_string, weig
   
   if end_cut:
     n_cuts = 0
-    print 'Cutting particles not appearing in station '+str(bunch_list[-1][0]['station'])
+    print('Cutting particles not appearing in station '+str(bunch_list[-1][0]['station']))
     hit_dict = {}
     for i in range( len(bunch_list[-1]) ):
       hit_dict[bunch_list[-1][i]['eventNumber']] = True
@@ -178,7 +178,7 @@ def weight_handler(end_cut, weight_filename_string, weight_filetype_string, weig
       if not hit['eventNumber'] in hit_dict:
         hit.set('global_weight', 0.)
         n_cuts+=1
-    print 'Cut '+str(n_cuts)+' events'
+    print('Cut '+str(n_cuts)+' events')
 
 def read_ecalc9f_dat(file_name):
   """
@@ -187,7 +187,7 @@ def read_ecalc9f_dat(file_name):
   bunch_out = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
   ecalc_dat = open(file_name)
   for i in range(14):
-    print ecalc_dat.readline().rstrip()
+    print(ecalc_dat.readline().rstrip())
   line = 'aline'
   while(line != ''):
     line  = ecalc_dat.readline().rstrip()
@@ -206,8 +206,8 @@ def dimensionless_lcan(bunch):
 
 def get_bunch_data(control_data, bunch_out, bunch, use_ref_p_in_cut):
   if control_data['rffreq'] > 0.: remove_rf_period(control_data['rffreq'], bunch)
-  print 'station:',bunch[0]['station'],
-  print 'total weight before cuts',bunch.bunch_weight(),
+  print('station:',bunch[0]['station'], end=' ')
+  print('total weight before cuts',bunch.bunch_weight(), end=' ')
   if not bunch[0].check():
     raise RuntimeError('Error - bad reference particle:\n'+repr(bunch[0]))
   cut_p = 0.
@@ -222,9 +222,9 @@ def get_bunch_data(control_data, bunch_out, bunch, use_ref_p_in_cut):
     bunch.cut({'pz':control_data['pzmin']+cut_p}, operator.le)
   bunch.set_geometric_momentum(False)
   bunch_weight = bunch.bunch_weight()
-  print 'total weight after cuts',bunch_weight
+  print('total weight after cuts',bunch_weight)
   if abs(bunch_weight) < Common.float_tolerance or len(bunch) < 7:
-    raise( ZeroDivisionError( 'Error - bunch weight 0 or too few particles in bunch') )
+    raise ZeroDivisionError
   bunch.set_covariance_matrix()
     
   for a_list in bunch_out: a_list.append(0.)
@@ -388,7 +388,7 @@ def substitution(string_in, map_string_in_to_string_out):
   Straight string substitution - no regular expression crap
   """
   string_out = repr('\''+string_in+'\'')
-  for sin,sout in map_string_in_to_string_out.iteritems():
+  for sin,sout in map_string_in_to_string_out.items():
     string_out.replace(sin,sout)
   return string_out
 
@@ -414,7 +414,7 @@ def make_matplot_plots(bunch_data, bunch_list, format_string):
     if not (axis[y_ind] == 'no' or y_ind == x_ind):
       name = axis[x_ind]+' vs '+axis[y_ind]
       string_swaps = {'//':'l', ' ':'_'}
-      for sin,sout in string_swaps.iteritems(): name = name.replace(sin,sout)
+      for sin,sout in string_swaps.items(): name = name.replace(sin,sout)
       string_deletes = ['{','[',']','}','#','$','^','\\','*', '>', '<', '/']
       for sin in string_deletes: name = name.replace(sin,'')
       Common.make_matplot_graph(bunch_data[x_ind], axis[x_ind], bunch_data[y_ind], axis[y_ind])
@@ -456,7 +456,7 @@ def make_root_plots(bunch_data, bunch_list, format_string):
     if not (axis[y_ind] == 'no' or y_ind == x_ind):
       name = axis[x_ind]+' vs '+axis[y_ind]
       string_swaps = {'//':'l', ' ':'_'}
-      for sin,sout in string_swaps.iteritems(): name = name.replace(sin,sout)
+      for sin,sout in string_swaps.items(): name = name.replace(sin,sout)
       string_deletes = ['{','[',']','}','#','$','^','\\','*', '>', '<', '/']
       for sin in string_deletes: name = name.replace(sin,'')
       canvas = Common.make_root_canvas(name)
@@ -517,7 +517,7 @@ def main(argv=None):
   try:
     ecalc9f(filename, filetype, contname, outname, plots, endcut, weightfile, weighttype, weightevt, refmom)
   except:
-    print 'Error during running. Error was reported as\n  '
+    print('Error during running. Error was reported as\n  ')
     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
     return 1
   return 0

@@ -19,7 +19,7 @@ import glob
 import string
 import copy
 import gzip
-import StringIO
+import io
 import operator
 import math
 import sys
@@ -132,7 +132,7 @@ class Bunch:
     """Return true if all hits in self are the same as all hits in target, and set_covariance_matrix data are the same"""
     if type(target)      != type(self):          return False
     if len(self.__hits)  != len(target.__hits):  return False
-    for key,value in self.__means.iteritems():
+    for key,value in self.__means.items():
       if not key in target.__means:                                      return False
       if abs(self.__means[key] - target.__means[key]) > float_tolerance: return False
     try:
@@ -273,7 +273,7 @@ class Bunch:
     if file_type_string.find('maus_root') > -1:
       hit_list = []
       for file_name in file_name_list:
-          print "Loading", file_name
+          print("Loading", file_name)
           hit_list += Bunch.read_maus_root_file(
                                           file_name,
                                           number_of_hits,
@@ -284,7 +284,7 @@ class Bunch:
     elif file_type_string.find('maus_') > -1:
       hit_list = []
       for file_name in file_name_list:
-          print "Loading", file_name
+          print("Loading", file_name)
           hit_list += Bunch.read_maus_json_file(
                                           file_name,
                                           number_of_hits,
@@ -294,7 +294,7 @@ class Bunch:
       return Bunch.new_from_hits(hit_list)
     bunch = Bunch()
     for file_name in file_name_list:
-        print "Loading", file_name
+        print("Loading", file_name)
         filehandle = Bunch.setup_file(file_type_string, file_name)
         while(len(bunch) < number_of_hits or number_of_hits < 0):
           try:
@@ -393,7 +393,7 @@ class Bunch:
         root_file.Close()
     except AttributeError:
         sys.excepthook(*sys.exc_info())
-        print "Failed while reading events from file", file_name
+        print("Failed while reading events from file", file_name)
     return hits
   read_maus_root_file = staticmethod(read_maus_root_file)
 
@@ -430,7 +430,7 @@ class Bunch:
       filehandle.readline()
     if file_format_type_string == 'g4beamline_bl_track_file': 
       open_file  = filehandle
-      filehandle = StringIO.StringIO()
+      filehandle = io.StringIO()
       try:
         line = open_file.readline()
         while( len(line) > 0 ):
@@ -584,7 +584,7 @@ class Bunch:
     A whole load of useful comparators can be found in the operator module. e.g. ge is >=; le is <=; etc
     See also python built-in function "filter".
     """
-    for variable, cut_value in variable_value_dict.iteritems():
+    for variable, cut_value in variable_value_dict.items():
       if(value_is_nsigma_bool):
         cut_value *= self.standard_deviation(variable, self.mean([variable]))**0.5
       # optimisation for amplitude cut: calculate covariance matrix first
@@ -783,7 +783,7 @@ class Bunch:
     """
     if global_cut: set_var = 'global_weight'
     else:          set_var = 'local_weight'
-    for variable, cut_value in variable_value_dict.iteritems():
+    for variable, cut_value in variable_value_dict.items():
       if(value_is_nsigma_bool):
         cut_value *= self.moment([variable, variable], self.mean([variable]))**0.5
       # check for non-int get variables
@@ -990,11 +990,11 @@ class Bunch:
     array_out = []
     for var in emit_var:
       array_out = array_out+[float(evalues[2*var]), float(evalues[2*var+1])]
-    print array_out
-    print 'Undiagonalisation:'
-    print ematrix*numpy.diagflat(evalues)*ematrix.T
-    print ematrix
-    print numpy.diagflat(evalues)
+    print(array_out)
+    print('Undiagonalisation:')
+    print(ematrix*numpy.diagflat(evalues)*ematrix.T)
+    print(ematrix)
+    print(numpy.diagflat(evalues))
     cov_out = numpy.diagflat(array_out)
     return self.get_emittance(emittance_axis_list, covariance_matrix=cov_out, geometric=geometric)
     """
@@ -1297,7 +1297,7 @@ class Bunch:
     values = []
     for dummy in list_of_variables:
       values.append([])
-    for key, bunch in dict_of_bunches.iteritems():
+    for key, bunch in dict_of_bunches.items():
       for i in range(len(list_of_variables)):
         values[i].append(bunch.get(list_of_variables[i], list_of_axis_lists[i]))
     Common.multisort(values)
@@ -1337,7 +1337,7 @@ class Bunch:
     """
     if not file_type_string in Hit.file_types(): raise IOError('Attempt to write file of unknown file type '+str(file_type_string)+' - try one of '+str(Hit.file_types()))
     all_hits = []
-    for key,value in dict_of_bunches.iteritems():
+    for key,value in dict_of_bunches.items():
       all_hits += value.hits()
     Hit.write_list_builtin_formatted(all_hits, file_type_string, file_name)
   hit_write_builtin_from_dict = staticmethod(hit_write_builtin_from_dict)
@@ -1673,7 +1673,7 @@ class Bunch:
     x_points        = []
     y_points        = []
     list_of_bunches = []
-    try:    list_of_bunches = bunches.values()
+    try:    list_of_bunches = list(bunches.values())
     except: list_of_bunches = bunches
     if comparator != None:
       list_of_bunches.sort(comparator)
@@ -1685,7 +1685,7 @@ class Bunch:
           if len(x_points) > len(y_points):
               x_points.pop(-1)
           sys.excepthook(*sys.exc_info())
-          print 'Failed to get data from bunch', i
+          print('Failed to get data from bunch', i)
     x_axis_string += "( "
     y_axis_string += "( "
     for value in x_axis_list: x_axis_string += value+" "
@@ -1794,7 +1794,7 @@ class Bunch:
     """
     x_points = []
     y_points = []
-    try:    list_of_bunches = bunches.values()
+    try:    list_of_bunches = list(bunches.values())
     except: list_of_bunches = bunches
     if comparator != None:
       list_of_bunches.sort(comparator)
@@ -1862,7 +1862,7 @@ class Bunch:
   __geometric_momentum     = False
 
   __get_list               = []
-  for key,value in __get_dict.iteritems():
+  for key,value in __get_dict.items():
     __get_list.append(key)
 
   def bunch_overview_doc(verbose = False):
@@ -1901,20 +1901,20 @@ Bunch class is a container class for a set of hits. The main purpose is to store
 """
     dir_bunch = dir(Bunch)
     if verbose:
-      print 'The following functions and data are in Bunch but not in overview_doc:'
+      print('The following functions and data are in Bunch but not in overview_doc:')
       for func in dir_bunch:
         found = False
-        for func_sublist in function_list.values():
+        for func_sublist in list(function_list.values()):
           if func in func_sublist: found = True
-        if not found: print func,
-      print '\n'
+        if not found: print(func, end=' ')
+      print('\n')
 
-      print 'The following functions and data are in bunch_overview_doc but not in Bunch:'
-      for func_sublist in function_list.values():
+      print('The following functions and data are in bunch_overview_doc but not in Bunch:')
+      for func_sublist in list(function_list.values()):
         for func in func_sublist:
           if func not in dir_bunch:
-            print func,
-      print
+            print(func, end=' ')
+      print()
 
     doc = bunch_doc    
     for key in name_list:

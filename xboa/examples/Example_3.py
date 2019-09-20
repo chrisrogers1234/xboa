@@ -23,13 +23,13 @@ from xboa.bunch import Bunch
 import operator
 import sys
 
-print '========= XBOA example 3 ========='
+print('========= XBOA example 3 =========')
 
 #load data file
-print "This example shows how to make cuts"
-print "Loading file... "
+print("This example shows how to make cuts")
+print("Loading file... ")
 bunch_list = Bunch.new_list_from_read_builtin('icool_for009', sys.prefix+'/share/xboa/data/for009.dat')
-print "Loaded"
+print("Loaded")
 
 #make px histogram
 bunch_list[0].root_histogram('px', 'MeV/c')
@@ -75,7 +75,7 @@ bunch_list[0].transmission_cut(bunch_list[-1], global_cut=True)
 Bunch.root_graph(bunch_list, 'mean', ['z'], 'bunch_weight', '')
 
 #now wait for user to review plots before ending
-print 'Press <return> key to finish'
-raw_input()
+print('Press <return> key to finish')
+input()
 Bunch.clear_global_weights()
 

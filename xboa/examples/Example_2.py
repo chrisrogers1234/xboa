@@ -26,20 +26,20 @@ import sys
 filename = sys.prefix+'/share/xboa/data/for009.dat'
 filetype = "icool_for009" #some other options are "g4mice_virtual_hit", "icool_for003", "g4mice_special_hit"
 
-print '========= XBOA example 2 ========='
+print('========= XBOA example 2 =========')
 
 #try to load an input file
 #this will load the for009 file, and make a list of "bunches", one for each region
 #a list is a python version of an array
-print "This example shows how to make plots\nYou will need to have access to either ROOT library or the matplotlib library to make plots"
-print "First loading the data... "
+print("This example shows how to make plots\nYou will need to have access to either ROOT library or the matplotlib library to make plots")
+print("First loading the data... ")
 bunch_list = Bunch.new_list_from_read_builtin(filetype, filename)
-print "Loaded"
+print("Loaded")
 
 #make some plots
 #first try to make plots with ROOT if PyROOT exists
 try:
-  print 'Trying to make some plots using PyROOT plotting package'
+  print('Trying to make some plots using PyROOT plotting package')
   config.has_root() #check for PyRoot library
   #momentum distribution at start and end
   bunch_list[0] .root_histogram('p', 'MeV/c')
@@ -60,11 +60,11 @@ try:
   Bunch.root_graph(bunch_list, 'mean', ['z'], 'emittance', ['x'],     'm', 'mm')
   Bunch.root_graph(bunch_list, 'mean', ['z'], 'emittance', ['x','y'], 'm', 'mm')
 except ImportError:
-  print "PyROOT not detected - skipping PyROOT graphics"
+  print("PyROOT not detected - skipping PyROOT graphics")
   
 #now try to make plots with matplotlib if matplotlib exists
 try:
-  print 'Trying to make some plots using matplotlib plotting package'
+  print('Trying to make some plots using matplotlib plotting package')
   config.has_matplot() #check for matplot library
   #momentum distribution at start and end
   bunch_list[0] .matplot_histogram('p', 'MeV/c')
@@ -87,12 +87,12 @@ try:
   except: #bug - if you have PyROOT and use python < 2.6, show_matplot_and_continue() fails
     pass # give up on matplot
 except ImportError:
-  print "Matplotlib not detected - skipping matplotlib graphics"
+  print("Matplotlib not detected - skipping matplotlib graphics")
 
 
 #now wait for user to review plots before ending
-print 'Press <return> key to finish'
-raw_input()
+print('Press <return> key to finish')
+input()
 
 
 

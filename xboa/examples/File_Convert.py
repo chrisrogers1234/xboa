@@ -147,7 +147,7 @@ try:
   import bunch
   from bunch import Bunch
 except ImportError:
-  print 'Error during x-boa import. Check your x-boa installation is in the PYTHONPATH environment variable'
+  print('Error during x-boa import. Check your x-boa installation is in the PYTHONPATH environment variable')
   raise ImportError
 
 try:
@@ -157,7 +157,7 @@ try:
   import math
   import string
 except ImportError:
-  print 'Error during python import. Check your python installation.'
+  print('Error during python import. Check your python installation.')
   raise ImportError
 
 debug    = False #Set to true for full error output
@@ -192,12 +192,12 @@ def read_input(lines):
     if line[0] == 'format_in':   format_in = line[1]
     if line[0] == 'station_in':  station   = int(line[1])
   if station == None:
-    print 'Reading file \''+file_in+'\' of type \''+format_in+'\''
+    print('Reading file \''+file_in+'\' of type \''+format_in+'\'')
     bunch = Bunch.new_from_read_builtin(format_in, file_in)
   else:
-    print 'Reading station',station,'from file \''+file_in+'\' of type \''+format_in+'\''
+    print('Reading station',station,'from file \''+file_in+'\' of type \''+format_in+'\'')
     bunch = Bunch.new_dict_from_read_builtin(format_in, file_in)[station]
-  print 'Loaded',bunch
+  print('Loaded',bunch)
   return bunch
 
 def write_output(lines, bunch):
@@ -207,7 +207,7 @@ def write_output(lines, bunch):
     if line[0] == 'file_out':   file_out   = line[1]
     if line[0] == 'format_out': format_out = line[1]
   bunch.hit_write_builtin(format_out, file_out)
-  print 'Written a',format_out,'file to',file_out
+  print('Written a',format_out,'file to',file_out)
 
 def rotate(lines, bunch):
   variables        = []
@@ -225,9 +225,9 @@ def rotate(lines, bunch):
       i2 = variables.index(line[2])
       target_matrix[i1,i2] = float(line[3])
       target_matrix[i2,i1] = float(line[3])
-  print 'Rotation in variables\n',variables,'\nto matrix\n',target_matrix,'\nabout origin\n',origin
+  print('Rotation in variables\n',variables,'\nto matrix\n',target_matrix,'\nabout origin\n',origin)
   bunch.transform_to(variables, target_matrix, origin)
-  print 'gives\n',bunch.covariance_matrix(variables, origin)
+  print('gives\n',bunch.covariance_matrix(variables, origin))
 
 def translate(lines, bunch):
   translation = {}
@@ -235,20 +235,20 @@ def translate(lines, bunch):
     if line[0] == 'translate':
       for i in range(1,len(line),2): 
         translation[ line[i] ] = float(line[i+1])
-  print 'Translating through\n',translation
+  print('Translating through\n',translation)
   bunch.translate(translation)
 
 def mass_shell_condition(lines, bunch):
   for line in lines:
     if line[0] == 'mass_shell_condition': 
-      print 'Changing momentum variable',line[1],'to force E^2 = p^2 + m^2'
+      print('Changing momentum variable',line[1],'to force E^2 = p^2 + m^2')
       for hit in bunch:
         hit.mass_shell_condition(line[1])
       return
 
 def plots(lines, bunch, do_in):
   histogram_format = 'png'
-  print 'Making plots'
+  print('Making plots')
   for line in lines:
     if line[0] == 'histogram_format': histogram_format = line[0]
   for line in lines:
@@ -264,14 +264,14 @@ def main(argv=None):
   if len(sys.argv) > 1: 
     (arg_name,dummy,argument) = sys.argv[1].partition('=')
     if arg_name == '-c': contname = argument
-    else: print 'Warning - didnt recognise command line argument',arg
+    else: print('Warning - didnt recognise command line argument',arg)
   
   if sys.argv[0].find( 'File_Convert' ) > -1:
     if debug: file_convert(contname)
     else:
       try: file_convert(contname)
-      except Exception, error:
-        print 'There was a problem during execution. Error was:\n',error
+      except Exception as error:
+        print('There was a problem during execution. Error was:\n',error)
 
 if __name__ == "__main__":
     sys.exit(main())
