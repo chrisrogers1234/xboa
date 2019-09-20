@@ -20,6 +20,6 @@
 common module defines common utility data and functions that are used elsewhere
 """
 
-import config
-from _common import *
+import xboa.common.config
+from ._common import *
 

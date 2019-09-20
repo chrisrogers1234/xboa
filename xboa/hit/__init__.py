@@ -28,8 +28,8 @@ Implemented within this module:
     \link xboa::bunch::_bunch::Bunch::new_from_read_builtin Bunch.new_from_read_builtin \endlink and this is the preferred way of loading data.
 """
 
-from _hit import Hit
-from _hit import BadEventError
+from ._hit import Hit
+from ._hit import BadEventError
 all = ["Hit", "BadEventError"]
 
 

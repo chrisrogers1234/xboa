@@ -24,6 +24,6 @@ collection of Hits that can be taken together to make up a bunch
     statistical weighting routines that can apply to Bunch objects.
 """
 
-from _bunch import Bunch
+from ._bunch import Bunch
 __all__ = ["Bunch"]
 

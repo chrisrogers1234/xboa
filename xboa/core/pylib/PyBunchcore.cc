@@ -502,7 +502,7 @@ static struct PyModuleDef bunchcoredef = {
     NULL,                /* m_free */
 };
 
-PyMODINIT_FUNC PyInit_bunchcore(void) {
+PyMODINIT_FUNC PyInit__bunchcore(void) {
     PyBunchcoreType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&PyBunchcoreType) < 0) {
         return NULL;

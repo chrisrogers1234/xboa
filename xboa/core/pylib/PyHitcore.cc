@@ -317,7 +317,7 @@ static struct PyModuleDef hitcoredef = {
     NULL,                /* m_free */
 };
 
-PyMODINIT_FUNC PyInit_hitcore(void) {
+PyMODINIT_FUNC PyInit__hitcore(void) {
     SmartPointer<Hitcore>::set_context(hitcore_smartpointer_context);
     PyHitcoreType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&PyHitcoreType) < 0) return NULL;
