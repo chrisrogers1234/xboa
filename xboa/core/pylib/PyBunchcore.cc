@@ -490,10 +490,12 @@ static PyTypeObject PyBunchcoreType = {
     (freefunc)dealloc, /* tp_free, called by dealloc */
 };
 
+const char* module_docstring = "_bunchcore module for the Bunchcore class";
+
 static struct PyModuleDef bunchcoredef = {
     PyModuleDef_HEAD_INIT,
-    "_hitcore",     /* m_name */
-    "Core module wrapped by Bunch",  /* m_doc */
+    "_bunchcore",     /* m_name */
+    module_docstring,  /* m_doc */
     -1,                  /* m_size */
     NULL,    /* m_methods */
     NULL,                /* m_reload */

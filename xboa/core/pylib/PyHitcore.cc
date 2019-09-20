@@ -330,7 +330,7 @@ PyMODINIT_FUNC PyInit__hitcore(void) {
     Py_INCREF(hc_type);
     PyModule_AddObject(module, "Hitcore", reinterpret_cast<PyObject*>(hc_type));
 
-    // C API
+    // C API 
     PyObject* hc_dict = PyModule_GetDict(module);
     PyObject* ceh_c_api = PyCapsule_New(reinterpret_cast<void*>
                                 (C_API::create_empty_hitcore), NULL, NULL);

@@ -201,29 +201,29 @@ int xboa::core::PyHitcore::import_PyHitcore() {
     // setup create_empty_hitcore function
     PyObject* ceh_c_api = PyDict_GetItemString(hc_dict,
                                                "C_API_CREATE_EMPTY_HITCORE");
-    void* ceh_void = reinterpret_cast<void*>(PyCapsule_New(ceh_c_api, NULL, NULL));
+    void* ceh_void = PyCapsule_GetPointer(ceh_c_api, NULL);
     create_empty_hitcore = reinterpret_cast<PyObject* (*)()>(ceh_void);
 
     // setup get_hitcore function
     PyObject* ghc_c_api = PyDict_GetItemString(hc_dict, "C_API_GET_HITCORE");
-    void* ghc_void = reinterpret_cast<void*>(PyCapsule_New(ghc_c_api, NULL, NULL));
+    void* ghc_void = PyCapsule_GetPointer(ghc_c_api, NULL);
     get_hitcore = reinterpret_cast<int(*)(PyObject*, Hitcore*)>(ghc_void);
 
     // setup set_hitcore function
     PyObject* shc_c_api = PyDict_GetItemString(hc_dict, "C_API_SET_HITCORE");
-    void* shc_void = reinterpret_cast<void*>(PyCapsule_New(shc_c_api, NULL, NULL));
+    void* shc_void = PyCapsule_GetPointer(shc_c_api, NULL);
     set_hitcore = reinterpret_cast<int (*)(PyObject*, Hitcore*)>(shc_void);
 
     // setup check function
     PyObject* check_c_api = PyDict_GetItemString(hc_dict,
                                                "C_API_CHECK");
-    void* check_void = reinterpret_cast<void*>(PyCapsule_New(check_c_api, NULL, NULL));
+    void* check_void =PyCapsule_GetPointer(check_c_api, NULL);
     check = reinterpret_cast<bool (*)(PyObject*)>(check_void);
 
     // setup global weights context (see hitcore document)
     PyObject* gwc_c_api = PyDict_GetItemString(hc_dict,
                                                "C_API_GLOBAL_WEIGHTS_CONTEXT");
-    void* gwc_void = reinterpret_cast<void*>(PyCapsule_New(gwc_c_api, NULL, NULL));
+    void* gwc_void = PyCapsule_GetPointer(gwc_c_api, NULL);
 
     std::map<Hitcore::HitId, double>* gwc =
                 reinterpret_cast< std::map<Hitcore::HitId, double>*> (gwc_void);
@@ -232,7 +232,7 @@ int xboa::core::PyHitcore::import_PyHitcore() {
     // setup smartpointer context (see hitcore document)
     PyObject* spc_c_api = PyDict_GetItemString(hc_dict,
                                                "C_API_SMARTPOINTER_CONTEXT");
-    void* spc_void = reinterpret_cast<void*>(PyCapsule_New(spc_c_api, NULL, NULL));
+    void* spc_void = PyCapsule_GetPointer(spc_c_api, NULL);
 
     std::map<Hitcore*, std::size_t>* spc =
                 reinterpret_cast< std::map<Hitcore*, std::size_t>*>(spc_void);
