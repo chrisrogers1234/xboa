@@ -169,18 +169,18 @@ class RefinePeakFinder(object):
                                                               for j in range(3)])
             CovPeak = J*CovP*JT
             if self.draw:
-                print "=========="
-                print "Fit parameters"
-                print numpy.array([p0, p1, p2])
-                print "Fit errors"
-                print CovP            
-                print "Jacobian"
-                print J
-                print "Peak x, y"
-                print numpy.array(peak_out)
-                print "Covariances errors"
-                print CovPeak
-                print "=========="
+                print("==========")
+                print("Fit parameters")
+                print(numpy.array([p0, p1, p2]))
+                print("Fit errors")
+                print(CovP)
+                print("Jacobian")
+                print(J)
+                print("Peak x, y")
+                print(numpy.array(peak_out))
+                print("Covariances errors")
+                print(CovPeak)
+                print("==========")
             CovPeak = [[CovPeak[i, j] for i in range(2)] for j in range(2)]
             peak_with_errors.append({"x":peak_out[0],
                                      "y":peak_out[1],

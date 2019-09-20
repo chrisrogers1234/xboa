@@ -34,9 +34,9 @@ class HitFactoryBase(object):
 
     def hit_generator(self):
         try:
-            print "gen in"
+            print("gen in")
             yield self.make_hit()
-            print "gen out"
+            print("gen out")
         except (EOFError, xboa.hit.BadEventError):
             self.new_spill()
             try:
@@ -58,7 +58,7 @@ class HitFactoryBase(object):
     @classmethod
     def bad_pid(cls, pid):
         if pid not in cls.bad_pids:
-            print "Failed to parse pid", pid
+            print("Failed to parse pid", pid)
             cls.bad_pids.append(pid)
 
     bad_pids = []

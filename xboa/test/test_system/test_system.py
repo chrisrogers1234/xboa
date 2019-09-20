@@ -35,7 +35,7 @@ parse_tests = xboa.test.TestTools.parse_tests
 def print_mem_usage():
     pid = os.getpid()
     mem_usage = float(os.popen('ps -p %d -o %s | tail -1' % (pid, "rss")).read())
-    print "Memory usage for process", os.getpid(), mem_usage
+    print("Memory usage for process", os.getpid(), mem_usage)
     return mem_usage
 
 def system_mem_test(verbose=True):
@@ -49,7 +49,7 @@ def system_mem_test(verbose=True):
   gc.collect() #force a memory cleanup
   mem_usage_b4 = print_mem_usage()
   bunch_list=[]
-  print "Allocating memory"
+  print("Allocating memory")
   for i in range(3):
     bunch_list.append(Bunch())
     for i in range(10000):
@@ -61,7 +61,7 @@ def system_mem_test(verbose=True):
     bunch_list[-1].moment(['x'])
   Hit.clear_global_weights()
   mem_usage = print_mem_usage()
-  print "Cleaning memory"
+  print("Cleaning memory")
   bunch = bunch_list[0]
   while len(bunch) > 0:
     del bunch[0]
@@ -72,14 +72,14 @@ def system_mem_test(verbose=True):
   gc.collect() #force a memory cleanup
   mem_usage = print_mem_usage()
   if verbose:
-    print "Memory usage after cleanup in Mb (target 0 Mb):",mem_usage,'(absolute)',mem_usage-mem_usage_b4,'(difference)'
+    print("Memory usage after cleanup in Mb (target 0 Mb):",mem_usage,'(absolute)',mem_usage-mem_usage_b4,'(difference)')
   if mem_usage-mem_usage_b4 > 1000.: return "warn" # looks like memory leak...
   return "pass"
 
 def system_xboa9f_test_1():
   data = os.path.join('/', sys.prefix, 'share' ,'xboa', 'data')
   temp = tempfile.mkstemp()[1]
-  print 'Writing test xboa9f data to ', temp
+  print('Writing test xboa9f data to ', temp)
   proc = subprocess.Popen(['XBOA9f',
                            '-i='+data+'/for009.dat',
                            '-c='+data+'/ecalc9f.inp',
@@ -115,8 +115,8 @@ def test_system(test_examples=False):
   run_test(test_results, test_example, ('Example_3',) )
   run_test(test_results, test_example, ('Example_4',) )
   (passes,fails,warns) = parse_tests(test_results)
-  print '\n==============\n||  SYSTEM   ||\n=============='
-  print 'Passed ',passes,' tests\nFailed ',fails,' tests\n',warns,' warnings\n\n\n'
+  print('\n==============\n||  SYSTEM   ||\n==============')
+  print('Passed ',passes,' tests\nFailed ',fails,' tests\n',warns,' warnings\n\n\n')
   return (passes,fails,warns)
 
 

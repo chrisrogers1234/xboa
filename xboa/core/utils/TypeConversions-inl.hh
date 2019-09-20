@@ -19,11 +19,11 @@ namespace xboa {
 namespace core {
 
 bool PyCppIndexConverter::convert(PyObject* py_int, size_t* index) const {
-    if (!PyInt_Check(py_int)) {
+    if (!PyLong_Check(py_int)) {
         PyErr_SetString(PyExc_TypeError, "Index was not an integer");
         return false;
     }
-    Py_ssize_t py_index = PyInt_AsSsize_t(py_int);
+    Py_ssize_t py_index = PyLong_AsSsize_t(py_int);
     if (py_index < 0) {
         *index = abs(py_index+1);
     } else {
@@ -39,14 +39,15 @@ bool PyCppIndexConverter::convert(PyObject* py_int, size_t* index) const {
 
 bool PyCppStringConverter::convert(PyObject* py_string,
                                    std::string* cpp_string) const {
-    if (py_string && PyString_Check(py_string)) {
-        // copies the string
-        *cpp_string = std::string(PyString_AsString(py_string));
-    } else {
-        PyErr_SetString(PyExc_TypeError, "Failed to parse string");
-        return false;
+    if (py_string && PyUnicode_Check(py_string)) {
+        PyObject* bytes = PyUnicode_AsASCIIString(py_string);
+        if (bytes) {
+            *cpp_string = std::string(PyBytes_AsString(py_string));
+            return true;
+        }
     }
-    return true;
+    PyErr_SetString(PyExc_TypeError, "Failed to parse string");
+    return false;
 }
 
 bool PyCppDoubleConverter::convert(PyObject* py_double, double* cpp_double) const {

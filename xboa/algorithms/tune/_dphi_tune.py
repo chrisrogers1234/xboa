@@ -53,9 +53,9 @@ class DPhiTuneFinder(object):
         hit = reference_hit.deepcopy()
         hit[axis1] += delta1
         hit[axis2] += delta2
-        print "run_tracking"
-        print "  test:", hit
-        print "  ref: ", reference_hit
+        print("run_tracking")
+        print("  test:", hit)
+        print("  ref: ", reference_hit)
         hits_out = tracking.track_one(hit)
         if use_hits != None:
             hits_out = [hit for i, hit in enumerate(hits_out) if i in use_hits]
@@ -118,7 +118,7 @@ class DPhiTuneFinder(object):
         """
         circle_x = [point[0]*scale for point in self.point_circles]
         circle_y = [point[1]*scale for point in self.point_circles]
-        print len(circle_x), len(circle_y)
+        print(len(circle_x), len(circle_y))
         circle_hist, circle_graph = xboa.common.make_root_graph("dphi circle", circle_x, "", circle_y, "")
         circle_hist.SetTitle("Fitted points after Cholesky decomposition to circle")
         if circle_canvas == None:

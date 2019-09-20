@@ -16,7 +16,7 @@ __test_root_hist = xboa.test.TestTools.test_root_hist
 __test_root_canvas = xboa.test.TestTools.test_root_canvas
 __test_root_graph = xboa.test.TestTools.test_root_graph
 
-import StringIO
+import io
 import sys
 import time
 import math
@@ -142,7 +142,7 @@ def common_multisort_test():
   return 'fail' 
 
 def common_get_bin_edges_test():
-  n = range(-21,101)
+  n = list(range(-21,101))
   for i in range(len(n)): n[i] = float(n[i])**2 #note minimum is not n[0]
   edges = common.get_bin_edges(n, 20)
   if len(edges) != 21: return 'fail'
@@ -157,15 +157,15 @@ def common_get_bin_edges_test():
   
 
 def __build_test_histogram():
-  x_list = range(-200,10000)
-  y_list = range(-100,10100)
+  x_list = list(range(-200,10000))
+  y_list = list(range(-100,10100))
   w_list = []
   for i in range( len(x_list) ): 
     x_list[i] = float(x_list[i])/10.
     y_list[i] = float(y_list[i])/20.
     w_list.append(x_list[i])
-  bin_x     = range(-15,100,10)
-  bin_y     = range(-4, 200,10)
+  bin_x     = list(range(-15,100,10))
+  bin_y     = list(range(-4, 200,10))
 
   c_1d   = numpy.zeros((len(bin_x)-1,1))
   c_2d   = numpy.zeros((len(bin_x)-1,len(bin_y)-1))
@@ -205,7 +205,7 @@ def common_histogram_test():
   return 'pass'
 
 def common_make_root_histogram_test():
-  x_list = range(0,10000)
+  x_list = list(range(0,10000))
   w_list = []
   for i in range( len(x_list) ): 
     x_list[i] = float(x_list[i])/10000.
@@ -234,7 +234,7 @@ def common_make_root_histogram_test():
 def common_make_root_graph_test():
   testpass = True
   canvas = common.make_root_canvas('graph_test')
-  x_list = range(0,100)
+  x_list = list(range(0,100))
   for i in range( len(x_list) ): x_list[i] = float(x_list[i])/100.
   y_list = __sine_list(2., 2.*math.pi, x_list)
   mm = common.min_max(x_list) + common.min_max(y_list)
@@ -260,10 +260,10 @@ def common_make_root_multigraph_test():
   x_list_of_lists = []
   y_list_of_lists = []
   for i in range(2):
-    x_list_of_lists.append(range(0,50))
+    x_list_of_lists.append(list(range(0,50)))
     for i in range( len(x_list_of_lists[-1]) ):
       x_list_of_lists[-1][i] /= 10.
-    x_list_of_lists.append(range(0,100))
+    x_list_of_lists.append(list(range(0,100)))
     for i in range( len(x_list_of_lists[-1]) ):
       x_list_of_lists[-1][i] /= 20.
   for i in range( len(x_list_of_lists) ):
@@ -285,14 +285,14 @@ def common_wait_for_matplot_test():
   return 'pass' # a test that can't fail - excellent!
 
 def common_make_matplot_graph_test():
-  x_list = range(0,100)
+  x_list = list(range(0,100))
   for i in range( len(x_list) ): x_list[i] = float(x_list[i])/100.
   y_list = __sine_list(2., 2.*math.pi, x_list)
   myplot = common.make_matplot_graph(x_list, 'x [2#pi rad]', y_list, 'a*sin(b*x)')
   return 'pass' # a test that can't fail - excellent!
 
 def common_make_matplot_histogram_test():
-  x_list = range(0,10000)
+  x_list = list(range(0,10000))
   w_list = []
   for i in range( len(x_list) ): 
     x_list[i] = float(x_list[i])/10000.
@@ -304,7 +304,7 @@ def common_make_matplot_histogram_test():
   return 'pass' # a test that can't fail - excellent!
 
 def common_make_matplot_scatter_test():
-  x_list = range(0,10000)
+  x_list = list(range(0,10000))
   for i in range( len(x_list) ): 
     x_list[i] = float(x_list[i])/10000.
   y_list = __sine_list(2., 2.*math.pi, x_list)
@@ -316,10 +316,10 @@ def common_make_matplot_multigraph_test():
   x_list_of_lists = []
   y_list_of_lists = []
   for i in range(2):
-    x_list_of_lists.append(range(0,50))
+    x_list_of_lists.append(list(range(0,50)))
     for i in range( len(x_list_of_lists[-1]) ):
       x_list_of_lists[-1][i] /= 10.
-    x_list_of_lists.append(range(0,100))
+    x_list_of_lists.append(list(range(0,100)))
     for i in range( len(x_list_of_lists[-1]) ):
       x_list_of_lists[-1][i] /= 20.
   for i in range( len(x_list_of_lists) ):
@@ -333,18 +333,18 @@ def common_show_matplot_and_continue_test():
 
 def __subprocess_function_1(some_arg, some_other_arg):
   if some_arg != 'hello' and some_other_arg != 'world':
-    print 'error in common_subprocess_test - aborting'
+    print('error in common_subprocess_test - aborting')
     sys._exit()
   while True:
     time.sleep(60)
 
 def __subprocess_function_2(some_arg, some_other_arg):
   if some_arg != 'hello' and some_other_arg != 'world':
-    print 'error in common_subprocess_test - aborting'
+    print('error in common_subprocess_test - aborting')
     sys._exit()
   for i in range(5):
-    print i,' ',
-  print
+    print(i,' ', end=' ')
+  print()
 
 def __subprocess_function_3():
   pass
@@ -495,7 +495,7 @@ def common_make_root_ellipse_function_test():
     for value in [(0., 1.), (200., 1.), (100., 0.), (100., 2.)]:
         testpass = testpass and (func.Eval(*value)-1.) < common.float_tolerance
         if not testpass:
-            print 'FAILED ON ', value, func.Eval(*value)
+            print('FAILED ON ', value, func.Eval(*value))
 
     ell_cov = numpy.array([[3, 1], [1, 2]])
     ell_mean = [1, 1]
@@ -590,8 +590,8 @@ def test_common():
   test_results = test_matplotlib(test_results)
   results = parse_tests(test_results)
 
-  print '\n============\n|| COMMON ||\n============'
-  print 'Passed ',results[0],' tests\nFailed ',results[1],' tests\n',results[2],' warnings\n\n\n'
+  print('\n============\n|| COMMON ||\n============')
+  print('Passed ',results[0],' tests\nFailed ',results[1],' tests\n',results[2],' warnings\n\n\n')
   return results
 
 class CommonTestCase(unittest.TestCase):

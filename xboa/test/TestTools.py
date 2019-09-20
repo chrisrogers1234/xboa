@@ -1,6 +1,6 @@
 import os
 
-import StringIO
+import io
 import sys
 import time
 import math
@@ -28,7 +28,7 @@ def run_test(test_results, function, args, alignment=40):
   try:
     test_out = str(function(*args))
   except Exception:
-    print 'Unhandled exception in test',function.__name__
+    print(('Unhandled exception in test',function.__name__))
     sys.excepthook(*sys.exc_info())
     test_out = 'fail'
   except:
@@ -44,7 +44,7 @@ def parse_tests(test_results, verbose_bool = True):
   fails  = 0
   warns  = 0
   for line in test_results:
-    if verbose_bool: print line
+    if verbose_bool: print(line)
     if   string.find(line, 'fail') >-1: fails +=1
     elif string.find(line, 'False')>-1: fails +=1
     elif string.find(line, 'pass') >-1: passes+=1
@@ -62,7 +62,7 @@ def test_root_hist(hist, name, x_label, y_label, xmin, xmax, ymin, ymax, line_co
   minmax_user = [xmin, xmax, ymin, ymax]
   for i in range(4):
     if abs(minmax_hist[i]-minmax_user[i])>Common.float_tolerance:
-      print 'test_root_hist failed on minmax',i,'with expected',minmax_user[i],'actual',minmax_hist[i]
+      print(('test_root_hist failed on minmax',i,'with expected',minmax_user[i],'actual',minmax_hist[i]))
       return False
 #  print '@'+hist.GetXaxis().GetTitle()+'@','@'+x_label+'@',':','@'+hist.GetYaxis().GetTitle()+'@','@'+y_label+'@',':',hist.GetTitle(),title,':',hist.GetLineColor(),line_color,':'
 #  print hist.GetLineStyle(),line_style,':',hist.GetFillColor(),fill_color,':',hist.GetLineStyle(),line_style,':',hist.GetFillColor(),fill_color

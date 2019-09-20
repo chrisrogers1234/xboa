@@ -173,7 +173,6 @@ static PyMethodDef _methods[] = {
 
 static PyTypeObject PyHitcoreType = {
     PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
     "_hitcore.Hitcore", /*tp_name*/
     sizeof(PyHitcore),  /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -181,7 +180,7 @@ static PyTypeObject PyHitcoreType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (python3)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -212,12 +211,21 @@ static PyTypeObject PyHitcoreType = {
     (allocfunc)_alloc,    /* tp_alloc, called by new */
     0,                  /* tp_new */
     (freefunc)_free, /* tp_free, called by dealloc */
+    0,                  /* tp_is_gc */
+    0, /* tp_bases */
+    0, /* tp_mro method resolution order */
+    0, /* tp_cache */
+    0, /* tp_subclasses */
+    0, /* tp_weaklist */
+    0, /* tp_del */
+    1, /* tp_version_tag */
+    0, /* tp_finalize */
 };
 
 PyObject *_alloc(PyTypeObject *type, Py_ssize_t nitems) {
     PyHitcore* hc = new PyHitcore();
-    hc->ob_refcnt = 1;
-    hc->ob_type = type;
+    Py_REFCNT(hc) = 1;
+    Py_TYPE(hc) = type;
     hc->hitcore_ = SmartPointer<Hitcore>(NULL);
     return reinterpret_cast<PyObject*>(hc);
 }
@@ -297,15 +305,24 @@ static void update_set_get_maps() {
 
 std::map<Hitcore*, std::size_t>* hitcore_smartpointer_context = new std::map<Hitcore*, std::size_t>();
 
-PyMODINIT_FUNC init_hitcore(void) {
+static struct PyModuleDef hitcoredef = {
+    PyModuleDef_HEAD_INIT,
+    "_hitcore",     /* m_name */
+    module_docstring,  /* m_doc */
+    -1,                  /* m_size */
+    _keywdarg_methods,    /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
+
+PyMODINIT_FUNC PyInit_hitcore(void) {
     SmartPointer<Hitcore>::set_context(hitcore_smartpointer_context);
     PyHitcoreType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&PyHitcoreType) < 0) return;
-
-    PyObject* module = Py_InitModule3("_hitcore",
-                                      _keywdarg_methods,
-                                      module_docstring);
-    if (module == NULL) return;
+    if (PyType_Ready(&PyHitcoreType) < 0) return NULL;
+    PyObject* module = PyModule_Create(&hitcoredef);
+    if (module == NULL) return NULL;
     // updates the Hitcore get, set maps and sets docstrings
     update_set_get_maps();
 
@@ -315,24 +332,26 @@ PyMODINIT_FUNC init_hitcore(void) {
 
     // C API
     PyObject* hc_dict = PyModule_GetDict(module);
-    PyObject* ceh_c_api = PyCObject_FromVoidPtr(reinterpret_cast<void*>
-                                            (C_API::create_empty_hitcore), NULL);
-    PyObject* ghc_c_api = PyCObject_FromVoidPtr(reinterpret_cast<void*>
-                                          (C_API::get_hitcore), NULL);
-    PyObject* shc_c_api = PyCObject_FromVoidPtr(reinterpret_cast<void*>
-                                          (C_API::set_hitcore), NULL);
-    PyObject* check_c_api = PyCObject_FromVoidPtr(reinterpret_cast<void*>
-                                          (C_API::check), NULL);
-    PyObject* gwc_c_api = PyCObject_FromVoidPtr(reinterpret_cast<void*>
-                                            (hitcore_global_weights_context), NULL);
-    PyObject* spc_c_api = PyCObject_FromVoidPtr(reinterpret_cast<void*>
-                                            (hitcore_smartpointer_context), NULL);
+    PyObject* ceh_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (C_API::create_empty_hitcore), NULL, NULL);
+    PyObject* ghc_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (C_API::get_hitcore), NULL, NULL);
+    PyObject* shc_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (C_API::set_hitcore), NULL, NULL);
+    PyObject* check_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (C_API::check), NULL, NULL);
+    PyObject* gwc_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (hitcore_global_weights_context), NULL, NULL);
+    PyObject* spc_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (hitcore_smartpointer_context), NULL, NULL);
     PyDict_SetItemString(hc_dict, "C_API_CREATE_EMPTY_HITCORE", ceh_c_api);
     PyDict_SetItemString(hc_dict, "C_API_GET_HITCORE", ghc_c_api);
     PyDict_SetItemString(hc_dict, "C_API_SET_HITCORE", shc_c_api);
     PyDict_SetItemString(hc_dict, "C_API_CHECK", check_c_api);
     PyDict_SetItemString(hc_dict, "C_API_GLOBAL_WEIGHTS_CONTEXT", gwc_c_api);
     PyDict_SetItemString(hc_dict, "C_API_SMARTPOINTER_CONTEXT", spc_c_api);
+
+    return module;
 }
 
 SmartPointer<Hitcore> C_API::get_hitcore(PyObject* py_hc) {

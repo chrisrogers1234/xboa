@@ -67,7 +67,7 @@ class CutSmoothing(object):
         n_signal = len(signal)
         for column in table:
             if len(column) != n_signal:
-                print column
+                print(column)
                 raise IndexError("Column with length "+str(len(column))+\
                                  " not equal to "+str(n_signal))
         will_cut_data = [False]*n_signal

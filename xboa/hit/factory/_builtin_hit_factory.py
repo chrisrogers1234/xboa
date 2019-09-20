@@ -50,15 +50,15 @@ class BuiltinHitFactory(LineFactoryBase):
           hit.set('mass', 0.)
           hit.mass_shell_condition(self.file_mass_shell[format])
           if hit.get('pid') not in self.bad_pids:
-            print 'Warning - could not resolve PID ', hit.get('pid'), \
-                  ' setting mass to 0.'
+            print('Warning - could not resolve PID ', hit.get('pid'), \
+                  ' setting mass to 0.')
             self.bad_pids.append(hit.get('pid'))
         if 'charge' not in self.file_formats[format]:
           try:
             hit.set('charge', common.pdg_pid_to_charge[hit.get('pid')])
           except KeyError:
             if hit.get('pid') not in self.bad_pids:
-              print 'Warning - could not resolve PID ',hit.get('pid'),' setting charge to 0.'
+              print('Warning - could not resolve PID ',hit.get('pid'),' setting charge to 0.')
               self.bad_pids.append(hit.get('pid'))
         return hit
 

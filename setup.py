@@ -73,6 +73,7 @@ setup(name='xboa',
       data_files=dfiles,
       license='GPLv3',
       platforms='linux',
+      python_requires='>3.0',
       long_description=\
 """
 Cross-Platform Beam Optics Analysis

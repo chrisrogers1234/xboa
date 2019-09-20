@@ -108,8 +108,8 @@ class MultiTrack(TrackingBase):
                 if job.is_alive():
                     very_tmp_job_list.append(job)
                 else:
-                    print "Process", job.pid, "finished with exitcode", 
-                    print job.exitcode
+                    print("Process", job.pid, "finished with exitcode", end=' ') 
+                    print(job.exitcode)
             tmp_job_list = very_tmp_job_list
         return self.get_return_value()
 

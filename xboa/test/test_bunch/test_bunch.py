@@ -64,7 +64,7 @@ def bunch_str_test(bunch):
 def bunch_repr_test(bunch):
   new_bunch = eval(repr(bunch))
   if  new_bunch == bunch: return 'pass'
-  print repr(bunch)
+  print(repr(bunch))
   return 'fail'
 
 def bunch_copy_test(bunch):
@@ -102,12 +102,12 @@ def bunch_conditional_remove_test(bunch):
   bunch1.append(Hit.new_from_dict({'x':100., 'pid':pid}))
   bunch1.conditional_remove({'pid':pid}, operator.eq)
   if len(bunch1.get_hits('pid', pid)) != 0:
-    print 'failed - bunch1 wrong length',bunch1,bunch1.get_hits('pid', pid) 
+    print('failed - bunch1 wrong length',bunch1,bunch1.get_hits('pid', pid)) 
     return 'fail'
   bunch1.append(Hit.new_from_dict({'x':100., 'pid':pid}))
   bunch1.conditional_remove({'pid':pid}, operator.ne)
   if len(bunch1.get_hits('pid', pid)) != 1:
-    print 'failed - bunch1 wrong length',bunch1,bunch1.get_hits('pid', pid) 
+    print('failed - bunch1 wrong length',bunch1,bunch1.get_hits('pid', pid)) 
     return 'fail'
   if len(bunch1) != 1: return 'fail'
   return 'pass'
@@ -117,14 +117,14 @@ def bunch_translate_test(bunch):
   translation = {'x':5,'px':2}
   bunch1.translate({'x':5,'px':2})
   for index in range(len(bunch)):
-    for key,value in translation.iteritems():
+    for key,value in translation.items():
       if not abs(bunch[index].get(key) + value - bunch1[index].get(key)) < __float_tol: return 'fail'
   bunch1      = bunch.deepcopy()
   translation = {'x':5,'px':2}
   bunch1.translate({'x':5,'px':2}, 'energy')
   for index in range(len(bunch)):
     if not bunch1[index].check(): return 'fail'
-    for key,value in translation.iteritems():
+    for key,value in translation.items():
       if not abs(bunch[index].get(key) + value - bunch1[index].get(key)) < __float_tol: return 'fail'
   return 'pass'
 
@@ -160,13 +160,13 @@ def bunch_transform_to_test(bunch):
   if abs(covariances[0,0] - target_matrix[0,0]) > __float_tol or \
      abs(covariances[1,0] - target_matrix[0,1]) > __float_tol or \
      abs(covariances[1,1] - target_matrix[1,1]) > __float_tol:
-    print 'bunch_transform_to_test failed on matrix'
-    print covariances
-    print target_matrix
+    print('bunch_transform_to_test failed on matrix')
+    print(covariances)
+    print(target_matrix)
     return 'fail'
   d2 = linalg.det(bunch.covariance_matrix(['x','px']))
   if abs(d1 - d2) > __float_tol and abs( (d1-d2)/(d1+d2) )>__float_tol:
-    print 'bunch_transform_to_test failed on determinants', d1, d2
+    print('bunch_transform_to_test failed on determinants', d1, d2)
     return 'fail'
   return 'pass'
 
@@ -211,14 +211,14 @@ def bunch_moment_global_weight_test(bunch):
   bunch.clear_weights()
   for hit in bunch.hits():
     hit['local_weight'] = hit['x']
-  print
+  print()
   moment_x2 = bunch.moment(['x', 'x'])
   bunch.clear_weights()
   for hit in bunch.hits():
     hit['global_weight'] = hit['x']
-  print
+  print()
   if abs(moment_x2 - bunch.moment(['x', 'x'])) > __float_tol:
-    print moment_x2, bunch.moment(['x', 'x'])
+    print(moment_x2, bunch.moment(['x', 'x']))
     bunch.clear_weights()
     testpass = 'fail'
   else:
@@ -247,7 +247,7 @@ def bunch_covariance_matrix_test(bunch):
   for i in range(len(cov_list)):
     for j in range(len(cov_list)):
       if abs(bunch.moment([cov_list[i], cov_list[j]],origin_dict) - covariances[i,j]) > __float_tol: 
-        print cov_list[i],cov_list[j],'   ',bunch.moment([cov_list[i], cov_list[j]],origin_dict),covariances[i,j]
+        print(cov_list[i],cov_list[j],'   ',bunch.moment([cov_list[i], cov_list[j]],origin_dict),covariances[i,j])
         return 'fail'
   covariances1 = bunch.covariance_matrix(cov_list)
   covariances2 = bunch.covariance_matrix(cov_list, {})
@@ -255,7 +255,7 @@ def bunch_covariance_matrix_test(bunch):
   for i in range(len(cov_list)):
     for j in range(len(cov_list)):
       if abs(covariances1[i,j] - covariances2[i,j]) > __float_tol or abs(covariances1[i,j] - covariances3[i,j]) > __float_tol:
-        print i,j,covariances1[i,j], covariances2[i,j], covariances3[i,j]
+        print(i,j,covariances1[i,j], covariances2[i,j], covariances3[i,j])
         return 'fail'
   return 'pass'
 
@@ -436,7 +436,7 @@ def bunch_get_test(bunch):
     if var == 'standard_deviation': 
       target = bunch.standard_deviation(['x'])
     if abs(value - target) > abs(target)*__float_tol+__float_tol:
-      print 'bunch_get_test:',var,target,value 
+      print('bunch_get_test:',var,target,value) 
       return 'fail'
   return 'pass'
   
@@ -478,7 +478,7 @@ def bunch_get_amplitude_test(bunch):
     amp  += delta/float(len(bunch1.hits()))
   target = bunch1.get_emittance(axis_list,bunch1.covariance_matrix(['x','px']))*2.*len(axis_list)
   if abs(amp - target) > __float_tol:
-    print 'Failed at geometric=False:',amp, target
+    print('Failed at geometric=False:',amp, target)
     return 'fail'
   Bunch.set_geometric_momentum(True)
   if bunch1.covariances_set(): bunch1.set_covariance_matrix()
@@ -487,14 +487,14 @@ def bunch_get_amplitude_test(bunch):
     amp += Bunch.get_amplitude(bunch1, hit, axis_list)/float(len(bunch1))
   target = bunch1.get_emittance(axis_list)*2.*len(axis_list)
   if abs(amp - target) > __float_tol:
-    print 'Failed at geometric=True:',amp, target
+    print('Failed at geometric=True:',amp, target)
     return 'fail'
   Bunch.set_geometric_momentum(False)
   return 'pass'
 
 def bunch_histogram_var_bins_test(bunch):
   testpass = True
-  bin_x = range(-100,100)
+  bin_x = list(range(-100,100))
   bin_y = [-0.1,0.1,1.0]
   bin_weights = [[0]*(len(bin_x)-1)]
   for hit in bunch:
@@ -542,7 +542,7 @@ def bunch_root_graph_test(bunch_dict):
   canvas = ''
   canvas,hist,graph = Bunch.root_graph(bunch_dict, 'mean', ['z'], 'emittance',    ['x','y'], 'mm', 'm', canvas, __bunch_cmp, -10., 100., -20., 200., 1, 2, 3, 4, 'mrs title')
   testpass = __test_root_hist(hist,'mean( z ):emittance( x,y )', 'mean( z ) [mm]','emittance( x y ) [m]', -10., 100., -20., 200., rg.line_color, rg.line_style, rg.line_width, rg.fill_color, 'mrs title')
-  try:    list_of_bunches = bunch_dict.values()
+  try:    list_of_bunches = list(bunch_dict.values())
   except: list_of_bunches = bunch_dict
   x_list,y_list = [],[]
   for b in list_of_bunches:
@@ -607,7 +607,7 @@ def bunch_new_hit_shell_test():
 
 def bunch_maus_root_io_test(_bunch_not_used):
   out = 'pass'
-  file_types = filter(lambda format: format.find('maus_root') >= 0, Hit.file_types())
+  file_types = [format for format in Hit.file_types() if format.find('maus_root') >= 0]
   formats = {'maus_root_primary':40, #10 spills, 4 primaries per spill
              'maus_root_virtual_hit':90, #3 planes, 10 spills, 3 primaries per spill (1 primary misses)
              'maus_root_scifi_trackpoint':0,
@@ -623,21 +623,21 @@ def bunch_maus_root_io_test(_bunch_not_used):
         else:
             id_dict[_id] = True
     if formats[format] != len(bunch):
-        print 'bunch_maus_root_io_test fail on format', format, 'length', len(bunch)
+        print('bunch_maus_root_io_test fail on format', format, 'length', len(bunch))
         out = 'fail'
     if out == 'fail':
-      print 'bunch_maus_root_io_test', format
-      print 'spill', 'event', 'track', 'statn'
-      for _id in id_dict.keys():
+      print('bunch_maus_root_io_test', format)
+      print('spill', 'event', 'track', 'statn')
+      for _id in list(id_dict.keys()):
         for i in _id:
-          print str(i).rjust(5),
-        print
+          print(str(i).rjust(5), end=' ')
+        print()
   return out
 
 def bunch_builtin_io_test(bunch):
   out = 'pass'
-  print Hit.file_types()
-  file_types = filter(lambda format: format.find('maus_root') < 0, Hit.file_types())
+  print(Hit.file_types())
+  file_types = [format for format in Hit.file_types() if format.find('maus_root') < 0]
   for format in file_types:
     try:
       bunch.hit_write_builtin(format, 'bunch_builtin_io_test.gz')
@@ -659,16 +659,16 @@ def bunch_builtin_io_test(bunch):
         if format.find('maus_json') >= 0:
           bunch1[i]['spill'] = bunch[i]['spill']
     if bunch != bunch1:
-      print 'Builtin io failed with format',format
+      print('Builtin io failed with format',format)
       try:
-        print 'Input length',len(bunch),'Output length',len(bunch1)
+        print('Input length',len(bunch),'Output length',len(bunch1))
         counter = 0
         for i,hit in enumerate(bunch):
           if bunch[i] != bunch1[i] and counter < 10:
-            print 'Reference:', bunch[i], '\n', 'Test:', bunch1[i], '\n'
+            print('Reference:', bunch[i], '\n', 'Test:', bunch1[i], '\n')
             counter += 1
           elif bunch[i] != bunch1[i]:
-            print 'Further fails exist but were not printed...'
+            print('Further fails exist but were not printed...')
             break
       except:
         sys.excepthook(*sys.exc_info())
@@ -692,7 +692,7 @@ def bunch_dict_builtin_io_test(bunch_dict):
   hit_list_per_station = {}
   bunch_dict = copy.deepcopy(bunch_dict)
   events = []
-  for key, bunch in bunch_dict.iteritems():
+  for key, bunch in bunch_dict.items():
     for hit in bunch:
       station = hit['station']
       if not station in hit_list_per_station:
@@ -700,8 +700,8 @@ def bunch_dict_builtin_io_test(bunch_dict):
       hit_list_per_station[station].append(hit)
       total_hit_count += 1
 
-  for format in filter(lambda format: format.find('maus_root') < 0 and format.find('maus_json_primary') < 0, Hit.file_types()):
-    print "bunch_dict_builtin_io_test format:", format
+  for format in [format for format in Hit.file_types() if format.find('maus_root') < 0 and format.find('maus_json_primary') < 0]:
+    print("bunch_dict_builtin_io_test format:", format)
     Bunch.hit_write_builtin_from_dict(bunch_dict, format, 'bunch_dict_builtin_io_test.'+format)
     bunch_dict1 = Bunch.new_dict_from_read_builtin(format, 'bunch_dict_builtin_io_*s?.'+format)
     bunch_list1 = Bunch.new_list_from_read_builtin(format, 'bunch_dict_builtin_io_*s?.'+format)
@@ -711,13 +711,13 @@ def bunch_dict_builtin_io_test(bunch_dict):
       if len(bunch_list1) != 1 or len(bunch_list1[0]) != total_hit_count: return 'fail'
     else:
       if len(bunch_dict1) != len(hit_list_per_station):
-        print '    len in',len(hit_list_per_station),'len out',len(bunch_dict1), format, [bunch[0]['station'] for bunch in bunch_dict1.values()]
+        print('    len in',len(hit_list_per_station),'len out',len(bunch_dict1), format, [bunch[0]['station'] for bunch in list(bunch_dict1.values())])
         return 'fail'
-      for key in bunch_dict1.keys():
+      for key in list(bunch_dict1.keys()):
         if len(bunch_dict1[key]) != len(hit_list_per_station[key]):
-          for i,hit in enumerate(hit_list_per_station[key]): print 'in_'+str(i)+' ',hit['particle_number'],hit['event_number'],hit['station'],hit in hit_list_per_station[key]
-          for i,hit in enumerate(bunch_dict1[key]):          print 'out_'+str(i),hit['particle_number'],hit['event_number'],hit['station'],hit in bunch_dict1[key]
-          print 'station:',key,'n_hits_in:',len(hit_list_per_station[key]),'n_hits_out:',len(bunch_dict1[key]), format
+          for i,hit in enumerate(hit_list_per_station[key]): print('in_'+str(i)+' ',hit['particle_number'],hit['event_number'],hit['station'],hit in hit_list_per_station[key])
+          for i,hit in enumerate(bunch_dict1[key]):          print('out_'+str(i),hit['particle_number'],hit['event_number'],hit['station'],hit in bunch_dict1[key])
+          print('station:',key,'n_hits_in:',len(hit_list_per_station[key]),'n_hits_out:',len(bunch_dict1[key]), format)
           return 'fail'
   return 'pass'
 
@@ -744,7 +744,7 @@ def bunch_user_io_test(bunch):
     counter = 0
     for i in range(len(bunch)):
       if bunch[i] != bunch1[i] and counter < 5:
-        print i, bunch[i], '\n', bunch1[i], '\n'
+        print(i, bunch[i], '\n', bunch1[i], '\n')
         counter += 1
     raise RuntimeError('bunch not equal to bunch1')
   fh.close()
@@ -764,7 +764,7 @@ def bunch_user_io_test(bunch):
 #  def new_from_read_user(format_list, format_units_dict, filehandle, number_of_skip_lines, station_number=None, number_of_hits=-1):
 
 def set_covariances_test(bunch):
-  print 'set covariances test not defined'
+  print('set covariances test not defined')
   return 'fail'
 
 def bunch_get_dispersion_rsquared_test(bunch):
@@ -791,7 +791,7 @@ def bunch_period_transformation_test(bunch):
       bunch.period_transformation(offset, frequency, 'z')
       for hit in bunch:
         if abs(hit['z'])-1./frequency > __float_tol:
-          print 'bunch_period_transformation_test failed with frequency',frequency,' offset ',offset,' z out ',hit['z']
+          print('bunch_period_transformation_test failed with frequency',frequency,' offset ',offset,' z out ',hit['z'])
           return 'fail'
   return 'pass'
 
@@ -819,7 +819,7 @@ def bunch_build_ellipse_penn_test():
     x = ellipse.flatten().tolist()[0][i]
     y = test_ellipse.flatten().tolist()[0][i]
     if abs(x - y) > __float_tol*1e3:
-      print 'FAILED',i,x,y,x-y,'\noutput ellipse\n',ellipse,'\ntest ellipse\n',test_ellipse
+      print('FAILED',i,x,y,x-y,'\noutput ellipse\n',ellipse,'\ntest ellipse\n',test_ellipse)
       return 'fail'
 
   test_ellipse = numpy.matrix([[ 0.0306599,      -4.08799,             0,      -5.08241],
@@ -831,7 +831,7 @@ def bunch_build_ellipse_penn_test():
     x = ellipse.flatten().tolist()[0][i]
     y = test_ellipse.flatten().tolist()[0][i]
     if abs(x - y) > __float_tol*1e3:
-      print 'FAILED',i,x,y,x-y,'\noutput ellipse\n',ellipse,'\ntest ellipse\n',test_ellipse
+      print('FAILED',i,x,y,x-y,'\noutput ellipse\n',ellipse,'\ntest ellipse\n',test_ellipse)
       return 'fail'
   return 'pass'
 
@@ -845,8 +845,8 @@ def bunch_set_covariance_matrix_test(bunch, is_set):
      bunch.covariances_set() == is_set and \
      bunch.means_set() == is_set: 
     return 'pass'
-  print "Failed bunch_set_covariance_matrix_test with", is_set, mean_equal, \
-        cov_equal, bunch.covariances_set(), bunch.means_set()
+  print("Failed bunch_set_covariance_matrix_test with", is_set, mean_equal, \
+        cov_equal, bunch.covariances_set(), bunch.means_set())
   return 'fail'
 
 def bunch_test(bunch):
@@ -986,13 +986,13 @@ def test_bunch():
   set_list   = [False, False,  False, False, True, True, False]
   (passes, fails, warns) = (0,0,0)
 
-  for key,a_bunch in bunch_dict.iteritems():
-    print '\nTesting bunch',key
+  for key,a_bunch in bunch_dict.items():
+    print('\nTesting bunch',key)
     (my_passes, my_fails, my_warns) = bunch_test(a_bunch)
     passes += my_passes
     fails  += my_fails
     warns  += my_warns
-  print '\n\n'
+  print('\n\n')
 
   for i, a_bunch in enumerate(bunch_list):
       run_test(test_results, bunch_set_covariance_matrix_test, (a_bunch, set_list[i]))
@@ -1034,8 +1034,8 @@ def test_bunch():
   fails  += failsEq
   warns  += warnsEq
   Bunch.clear_global_weights()
-  print '\n==============\n||  BUNCH   ||\n=============='
-  print 'Passed ',passes,' tests\nFailed ',fails,' tests\n',warns,' warnings\n\n\n'
+  print('\n==============\n||  BUNCH   ||\n==============')
+  print('Passed ',passes,' tests\nFailed ',fails,' tests\n',warns,' warnings\n\n\n')
   return (passes,fails,warns)
 
 class BunchTestCase(unittest.TestCase):

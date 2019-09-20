@@ -57,7 +57,7 @@ class RefinePeakFinderTestCase(unittest.TestCase):
         pf = RefinePeakFinder(seeds, 20, 100, True)
         peaks = pf.find_peak_errors(test_data)
         for i, a_peak in enumerate(peaks):
-            print a_peak
+            print(a_peak)
             self.assertLess(abs(a_peak['y']-1.0), 0.01)
             self.assertLess(abs(a_peak['x']-seeds[i]-10), 5.0)
             self.assertEqual(abs(a_peak['x_in']-seeds[i]), 0)

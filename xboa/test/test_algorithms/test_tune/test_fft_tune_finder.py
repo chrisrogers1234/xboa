@@ -32,7 +32,7 @@ def matrix(phi_x, num_turns):
         matrix_list.append(matrix*matrix_list[-1])
         for j in range(6):
             if math.isnan(matrix_list[-1][j, j]):
-                print "ARG", i, matrix_list[-1], '\n\n', matrix_list[-5]
+                print("ARG", i, matrix_list[-1], '\n\n', matrix_list[-5])
                 raise ValueError("ARG")
     matrix_list = matrix_list
     offset = numpy.matrix([10., 7., 0., 0., 0., 1000.])
@@ -72,7 +72,7 @@ class FFTTuneTestCase(unittest.TestCase):
         # check test initialises properly
         co, tracking = matrix(math.pi/12., 1000)
         fft = FFTTuneFinder()
-        fft.run_tracking('x', 1.0, co, tracking, use_hits = range(0, 1000, 4))
+        fft.run_tracking('x', 1.0, co, tracking, use_hits = list(range(0, 1000, 4)))
         tune = fft.get_tune()
         #print "TUNE", tune*2.*math.pi, 4.*math.pi/12.
         fft.plot_fft("TUNE")

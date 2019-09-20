@@ -13,7 +13,8 @@ except Exception:
   my_coverage = None
 
 import unittest
-import StringIO
+from io import StringIO
+#import io.StringIO as StringIO
 import sys
 import time
 import math
@@ -34,7 +35,7 @@ except ImportError:
 
 class TestRunner(object):
     def __init__(self, test_log, test_dir, test_glob):
-        print "Writing everything to "+test_log
+        print("Writing everything to "+test_log)
         self.test_log = unittest.runner._WritelnDecorator(open(test_log, 'w'))
         self.test_dir = test_dir
         self.test_glob = test_glob
@@ -47,7 +48,7 @@ class TestRunner(object):
         sys.stderr = self.test_log
 
     def do_coverage(self):
-        print "Making coverage report"
+        print("Making coverage report")
         if my_coverage != None:
           try:
               my_coverage.stop()
@@ -59,23 +60,23 @@ class TestRunner(object):
         if not os.path.isdir(self.test_dir):
             raise RuntimeError('Could not find test directory '+self.test_dir+\
                                ', cwd is'+os.getcwd())
-        print >> self.stdout, "Searching for tests"
+        print("Searching for tests", file=self.stdout)
         listing = sorted([_dir for _dir, i, j in os.walk(self.test_dir)])
-        print >> self.stdout, listing
+        print(listing, file=self.stdout)
         for directory in listing:
             self._do_tests(directory)
         return
 
     def _do_tests(self, dirpath):
-        print '\nRunning tests in directory', dirpath
+        print('\nRunning tests in directory', dirpath)
         self.result = unittest.TextTestResult(sys.stdout , 1, 3)
         loader = unittest.TestLoader().discover(dirpath, self.test_glob)
         loader.run(self.result)
-        print "errors:", len(self.result.errors),\
+        print("errors:", len(self.result.errors),\
               "failures:", len(self.result.failures),\
               "skipped:", len(self.result.skipped),\
               "expectedFailures:", len(self.result.expectedFailures),\
-              "unexpected successes:", len(self.result.unexpectedSuccesses)
+              "unexpected successes:", len(self.result.unexpectedSuccesses))
         sys.stdout.flush()
         if not self.result.wasSuccessful():
             self.failed_dirs.append(dirpath)
@@ -87,10 +88,10 @@ if __name__ == '__main__':
     runner.run_tests()
     runner.do_coverage()
     if runner.success:
-        print 'PASSED all tests'
+        print('PASSED all tests')
     else:
-        print 'FAILED some tests'
+        print('FAILED some tests')
         for directory in runner.failed_dirs:
-            print '   ', directory
-    print >> runner.stdout, "Test log written to "+log
+            print('   ', directory)
+    print("Test log written to "+log, file=runner.stdout)
 

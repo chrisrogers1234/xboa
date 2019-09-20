@@ -37,7 +37,7 @@ class MausJsonHitFactory(HitFactoryBase):
         if format in self.file_types():
             format = format[10:] # string maus_json_
         elif format in self.deprecated_file_types():
-            print "Warning - using deprecated file type", format
+            print("Warning - using deprecated file type", format)
             format = format[5:] # strip maus_
         else:
             raise KeyError("Did not recognise format "+str(format))

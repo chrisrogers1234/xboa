@@ -149,7 +149,7 @@ class FFTTuneFinder(object):
         """
         # NEEDS TEST
         canvas = common.make_root_canvas(title)
-        print len(self.u), len(self.up)
+        print(len(self.u), len(self.up))
         hist, graph = common.make_root_graph(title, self.u, 'displacement',
                                                     self.up, 'divergence')
         hist.SetTitle(title)
@@ -219,7 +219,7 @@ class FFTTuneFinder(object):
         graph.Fit(fit)
         canvas.cd()
         fit.Draw("SAME")
-        print "Got peak at", fit.GetParameter(0), "with error", fit.GetParError(0)
+        print("Got peak at", fit.GetParameter(0), "with error", fit.GetParError(0))
         canvas.Update()
         return canvas, hist, graph, fit
 

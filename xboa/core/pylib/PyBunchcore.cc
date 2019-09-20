@@ -36,8 +36,8 @@ namespace PyBunchcore {
 
 PyObject *alloc(PyTypeObject *type, Py_ssize_t nitems) {
     PyBunchcore* bc = new PyBunchcore();
-    bc->ob_refcnt = 1;
-    bc->ob_type = type;
+    Py_REFCNT(bc) = 1;
+    Py_TYPE(bc) = type;
     return reinterpret_cast<PyObject*>(bc);
 }
 
@@ -46,7 +46,7 @@ int init(PyObject* self, PyObject *args, PyObject *kwds) {
     // failed to cast or self was not initialised - something horrible happened
     if (bc == NULL) {
         PyErr_SetString(PyExc_TypeError,
-                           "Failed to resolve self as Bunchcore in __init__");
+                        "Failed to resolve self as Bunchcore in __init__");
         return -1;
     }
     // legal python to call initialised_object.__init__() to reinitialise, so
@@ -450,8 +450,7 @@ static PySequenceMethods Bunchcore_as_seq = {
 
 static PyTypeObject PyBunchcoreType = {
     PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "xboa.core._bunchcore.Bunchcore",     /*tp_name*/
+    "_bunchcore.Bunchcore",     /*tp_name*/
     sizeof(Bunchcore),         /*tp_basicsize*/
     sizeof(xboa::core::PyHitcore::PyHitcore),  /*tp_itemsize*/
     (destructor)dealloc,     /*tp_dealloc*/
@@ -491,14 +490,27 @@ static PyTypeObject PyBunchcoreType = {
     (freefunc)dealloc, /* tp_free, called by dealloc */
 };
 
-PyMODINIT_FUNC init_bunchcore(void) {
-    PyBunchcoreType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&PyBunchcoreType) < 0) return;
+static struct PyModuleDef bunchcoredef = {
+    PyModuleDef_HEAD_INIT,
+    "_hitcore",     /* m_name */
+    "Core module wrapped by Bunch",  /* m_doc */
+    -1,                  /* m_size */
+    NULL,    /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
 
-    PyObject* module = Py_InitModule3("_bunchcore",
-                                      NULL,
-                                      "Core module wrapped by Bunch");
-    if (module == NULL) return;
+PyMODINIT_FUNC PyInit_bunchcore(void) {
+    PyBunchcoreType.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&PyBunchcoreType) < 0) {
+        return NULL;
+    }
+    PyObject* module = PyModule_Create(&bunchcoredef);
+    if (module == NULL) {
+        return NULL;
+    }
 
     Py_INCREF(&PyBunchcoreType);
     PyModule_AddObject(module, "Bunchcore", (PyObject *)&PyBunchcoreType);
@@ -509,15 +521,17 @@ PyMODINIT_FUNC init_bunchcore(void) {
     SmartPointer<Hitcore>::set_context(hc->hitcore_.get_context());
     // C API
     PyObject* bc_dict = PyModule_GetDict(module);
-    PyObject* ceb_c_api = PyCObject_FromVoidPtr(reinterpret_cast<void*>
-                                        (C_API::create_empty_bunchcore), NULL);
-    PyObject* gbc_c_api = PyCObject_FromVoidPtr(reinterpret_cast<void*>
-                                        (C_API::get_bunchcore), NULL);
-    PyObject* sbc_c_api = PyCObject_FromVoidPtr(reinterpret_cast<void*>
-                                        (C_API::set_bunchcore), NULL);
+    PyObject* ceb_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (C_API::create_empty_bunchcore), NULL, NULL);
+    PyObject* gbc_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (C_API::get_bunchcore), NULL, NULL);
+    PyObject* sbc_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (C_API::set_bunchcore), NULL, NULL);
     PyDict_SetItemString(bc_dict, "C_API_CREATE_EMPTY_BUNCHCORE", ceb_c_api);
     PyDict_SetItemString(bc_dict, "C_API_GET_BUNCHCORE", gbc_c_api);
     PyDict_SetItemString(bc_dict, "C_API_SET_BUNCHCORE", sbc_c_api);
+
+    return module;
 }
 
 

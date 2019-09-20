@@ -69,39 +69,39 @@ class TestMultipoleWeighting(unittest.TestCase):
             ellipse[i, i] = 1.
         ellipse[3, 3] = 0.5
         mean = numpy.zeros([4])
-        print "Target"
-        print mean
-        print ellipse
+        print("Target")
+        print(mean)
+        print(ellipse)
         multipole_weighting = MultipoleWeighting(3, weight_vars, ellipse, mean)
-        print "Before"
-        print test_bunch.mean(weight_vars)
-        print test_bunch.covariance_matrix(weight_vars)
+        print("Before")
+        print(test_bunch.mean(weight_vars))
+        print(test_bunch.covariance_matrix(weight_vars))
         test_bunch = multipole_weighting.apply_weights(test_bunch, False)
-        print "After"
-        print test_bunch.mean(weight_vars)
-        print test_bunch.covariance_matrix(weight_vars)
+        print("After")
+        print(test_bunch.mean(weight_vars))
+        print(test_bunch.covariance_matrix(weight_vars))
         for i in range(5):
             test_bunch = multipole_weighting.apply_weights(test_bunch, False)
-            print "Again", i
-            print test_bunch.mean(weight_vars)
-            print test_bunch.covariance_matrix(weight_vars)
+            print("Again", i)
+            print(test_bunch.mean(weight_vars))
+            print(test_bunch.covariance_matrix(weight_vars))
         moment_tensor = test_bunch._Bunch__bunchcore.moment_tensor\
                                                                (weight_vars, 4)
         moment_index = test_bunch._Bunch__bunchcore.index_by_power\
                                                            (4, len(weight_vars))
         for index, tensor in zip(moment_index, moment_tensor):
-            print index, tensor
+            print(index, tensor)
 
     def test_apply_weights_broke(self):
         test_bunch = self._generate_bunch(["x", "px"], 10)
         ellipse = numpy.zeros([2, 2])
         mean = numpy.array([0., 0.])
-        print test_bunch.mean(["x", "px"])
-        print test_bunch.covariance_matrix(["x", "px"])
+        print(test_bunch.mean(["x", "px"]))
+        print(test_bunch.covariance_matrix(["x", "px"]))
         multipole_weighting = MultipoleWeighting(2, ["x", "px"], ellipse, mean)
         multipole_weighting.apply_weights(test_bunch, False)
-        print test_bunch.mean(["x", "px"])
-        print test_bunch.covariance_matrix(["x", "px"])
+        print(test_bunch.mean(["x", "px"]))
+        print(test_bunch.covariance_matrix(["x", "px"]))
 
 if __name__ == "__main__":
     unittest.main()

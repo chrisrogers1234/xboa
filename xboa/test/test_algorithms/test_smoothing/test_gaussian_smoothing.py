@@ -48,19 +48,19 @@ class TestGaussianSmoothing(unittest.TestCase):
         canvas.Update()
         """
 
-        print 'signal fft - should have two FT components'
+        print('signal fft - should have two FT components')
         signal_fft = numpy.fft.fft(numpy.array(signal))
         fft_arr = [x for x in numpy.absolute(signal_fft)]
         self.assertGreater(fft_arr[10], 400.) 
         self.assertGreater(fft_arr[200], 400.) 
-        print [(i, z) for i, z in enumerate(fft_arr) if z > 10.0]
-        print 'smoothed fft - should have high frequency FT components removed'
+        print([(i, z) for i, z in enumerate(fft_arr) if z > 10.0])
+        print('smoothed fft - should have high frequency FT components removed')
         smoothed_fft = numpy.fft.fft(numpy.array(smoothed))
         fft_arr = [x for x in numpy.absolute(smoothed_fft)]
         self.assertEqual(fft_arr.index(max(fft_arr)), 10)
         self.assertGreater(fft_arr[10], 400.) 
         [self.assertLess(x, 10.) for x in fft_arr[20:500]]
-        print [(i, z) for i, z in enumerate(fft_arr) if z > 10.0]
+        print([(i, z) for i, z in enumerate(fft_arr) if z > 10.0])
 
     def test_smoothing_const(self):
         """Check the normalisation factor and handling of boundaries"""

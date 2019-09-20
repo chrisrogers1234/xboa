@@ -145,7 +145,7 @@ class Hit(object):
     e.g. myHit = Hit.new_from_dict({'x':5, 'y':0, 'z':100, 'px':0, 'py':5, 'pz':200, 'pid':-13}, 'energy' )
     """
     my_hit = Hit()
-    for k,v in set_dict.iteritems():
+    for k,v in set_dict.items():
       my_hit.set(k, v)
     if(mass_shell_string != ''):
       my_hit.mass_shell_condition(mass_shell_string)
@@ -255,7 +255,7 @@ class Hit(object):
     - translation_dict = dict of strings from list set_variables() to floats
     - mass_shell_string = string from list mass_shell_variables()
     """
-    for k,v in translation_dict.iteritems():
+    for k,v in translation_dict.items():
       self.set(k, v+self.get(k))
     self.mass_shell_condition(mass_shell_string)
 
@@ -356,11 +356,11 @@ class Hit(object):
     """Return True if mass shell condition is obeyed and pid is correct for the mass else return False"""
     pid = self.get('pid')
     if (not abs(pid) in Common.pdg_pid_to_mass) and (not pid in Hit.__bad_pids) and (not pid == 0):
-      print 'pid not recognised',self.get('pid')
+      print('pid not recognised',self.get('pid'))
       return False
-    if abs(pid) in Common.pdg_pid_to_mass.keys():
+    if abs(pid) in list(Common.pdg_pid_to_mass.keys()):
       if abs(self.get('mass')-Common.pdg_pid_to_mass[abs(pid)]) > tolerance_float:
-        print 'Mass',self.get('mass'),'does not match pid',self.get('pid')
+        print('Mass',self.get('mass'),'does not match pid',self.get('pid'))
         return False
     if  abs(round(self.get('p')**2 + self.get('mass')**2) - round(self.get('energy')**2))  > tolerance_float :
       return False
@@ -418,7 +418,7 @@ class Hit(object):
       for spill_number, item in enumerate(maus_tree):
         item["maus_event_type"] = "Spill"
         item["spill_number"] = spill_number
-        print >>filehandle,json.dumps(item)
+        print(json.dumps(item), file=filehandle)
       return
     comptor = (Hit.__station_cmp)
     list_of_hits.sort(comptor)
@@ -437,7 +437,7 @@ class Hit(object):
       try:
         hit_out.write_builtin_formatted(file_type_string, filehandle)
       except:
-        print 'Warning - failed to write ',hit_out
+        print('Warning - failed to write ',hit_out)
     filehandle.close()
     return
   write_list_builtin_formatted = staticmethod(write_list_builtin_formatted)
@@ -499,11 +499,11 @@ class Hit(object):
     maus_dict = {}
     three_vec_conversions = Hit.__maus_three_vec_conversions[type_name]
     conversion_dict = Hit.__maus_variable_conversions[type_name]
-    for maus_name, xboa_suffix in three_vec_conversions.iteritems():
+    for maus_name, xboa_suffix in three_vec_conversions.items():
       maus_dict[maus_name] = {}
       for xyz in ['x','y','z']:
         maus_dict[maus_name][xyz] = self[xboa_suffix+xyz]
-    for maus_key, xboa_key in conversion_dict.iteritems():
+    for maus_key, xboa_key in conversion_dict.items():
       maus_dict[maus_key] = self[xboa_key]
     for key, value in Hit._Hit__file_units[type_name]:
       xboa_dict[key] *= Hit._Hit__file_units[type_name][key]
@@ -696,7 +696,7 @@ class Hit(object):
     Sets self to be equal to new_from_dict(state)
     """
     self.__init__()
-    for k,v in state.iteritems():
+    for k,v in state.items():
       self.set(k, v)
 
   #write formatted output - don't touch mass or pid beyond reading them
@@ -724,7 +724,7 @@ class Hit(object):
       if hit_dict['pid'] != 0:
           hit_list.append(Hit.new_from_dict(hit_dict, 'energy'))
       else:
-          print 'Warning - pid 0 detected in maus_root_virtual_hit; hit will not be loaded'
+          print('Warning - pid 0 detected in maus_root_virtual_hit; hit will not be loaded')
     return hit_list
   __get_maus_root_virtual_hits = staticmethod(__get_maus_root_virtual_hits)
 
@@ -747,7 +747,7 @@ class Hit(object):
       value = item[sort_attribute]
       if not value in a_dict: a_dict[value] = []
       a_dict[value].append(item)
-    return a_dict.values()
+    return list(a_dict.values())
   __split_list_by_equality = staticmethod(__split_list_by_equality)
 
   # recursively reconstruct the maus_path
@@ -756,7 +756,7 @@ class Hit(object):
       if type(maus_path[0]) == type(""):
         if len(list_of_hits) > 1:
             for hit in list_of_hits:
-                print hit
+                print(hit)
             raise IOError("More than one hit for maus key")
         return {maus_path[0]:list_of_hits[0].get_maus_dict(format)[0]}
       if type(maus_path[0]) == type([]):
@@ -780,7 +780,7 @@ class Hit(object):
       value = item[sort_attribute]
       if not value in a_dict: a_dict[value] = []
       a_dict[value].append(item)
-    return a_dict.values()
+    return list(a_dict.values())
   __split_list_by_equality = staticmethod(__split_list_by_equality)
 
   def __return_one(self, value=''):
@@ -814,11 +814,11 @@ class Hit(object):
     __get_keys.append(key)
   for key in Hitcore.set_variables(): 
     __set_keys.append(key)
-  for key, value in __get_variables.iteritems(): 
+  for key, value in __get_variables.items(): 
     __get_keys.append(key)
-  for key, value in __set_variables.iteritems(): 
+  for key, value in __set_variables.items(): 
     __set_keys.append(key)
-  for key, value in __get_variables.iteritems():
+  for key, value in __get_variables.items():
     if not key in _default_var_types:
       _default_var_types[key] = float #assume everything else is a float
 
@@ -940,20 +940,20 @@ class Hit(object):
     hit_doc = '\nHit class stores all data for a Hit on e.g. a detector - so for example, (x,y,z) and (px,py,pz) data. Mimics a string-indexed dict; full documentation for internal variables is given below under Hitcore. In brief, gettable variables are\n'+str(Hit.get_variables())+'\n and settable variables are\n'+str(Hit.set_variables())+'.\n Call using e.g. my_hit[\'x\'] = 3. Also has IO functions and a few other useful functions.\n'
     dir_hit = dir(Hit)
     if verbose:
-      print 'The following functions and data are in Bunch but not in overview_doc:'
+      print('The following functions and data are in Bunch but not in overview_doc:')
       for func in dir_hit:
         found = False
-        for func_sublist in function_list.values():
+        for func_sublist in list(function_list.values()):
           if func in func_sublist: found = True
-        if not found: print func,
-      print '\n'
+        if not found: print(func, end=' ')
+      print('\n')
 
-      print 'The following functions and data are in bunch_overview_doc but not in Bunch:'
-      for func_sublist in function_list.values():
+      print('The following functions and data are in bunch_overview_doc but not in Bunch:')
+      for func_sublist in list(function_list.values()):
         for func in func_sublist:
           if func not in dir_hit:
-            print func,
-      print
+            print(func, end=' ')
+      print()
 
     doc = hit_doc    
     for key in name_list:

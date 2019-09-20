@@ -54,21 +54,21 @@ class VoronoiWeightingTestCase(unittest.TestCase):
             test_bunch.append(test_hit)
         my_weights = VoronoiWeighting(['x', 'y'],
                                       numpy.array([[20., 0.],[0., 20.]]))
-        print "Plotting weights", datetime.datetime.now()
+        print("Plotting weights", datetime.datetime.now())
         canvas, hist = test_bunch.root_histogram('x', 'mm', 'y', 'mm')
         hist.Draw("COLZ")
         canvas.Update()
-        print 'Covariances ["x", "y"] before\n', test_bunch.covariance_matrix(['x', 'y'])
-        print "Applying weights 1 process", datetime.datetime.now()
+        print('Covariances ["x", "y"] before\n', test_bunch.covariance_matrix(['x', 'y']))
+        print("Applying weights 1 process", datetime.datetime.now())
         my_weights.apply_weights(test_bunch, False, 1)
-        print "Applying weights 2 processes", datetime.datetime.now()
+        print("Applying weights 2 processes", datetime.datetime.now())
         my_weights.apply_weights(test_bunch, False, 2)
-        print "Applying weights 4 processes", datetime.datetime.now()
+        print("Applying weights 4 processes", datetime.datetime.now())
         my_weights.apply_weights(test_bunch, False, 4)
-        print "Plotting tesselation", datetime.datetime.now()
+        print("Plotting tesselation", datetime.datetime.now())
         #my_weights.plot_two_d_projection(['x', 'y'], 'weight')
         my_weights.plot_two_d_projection(['x', 'y'], 'content')
-        print "Plotting weights", datetime.datetime.now()
+        print("Plotting weights", datetime.datetime.now())
         canvas, hist = test_bunch.root_histogram('x', 'mm', 'y', 'mm')
         hist.Draw("COLZ")
         canvas.Update()
@@ -81,7 +81,7 @@ class VoronoiWeightingTestCase(unittest.TestCase):
         hist = common.make_root_histogram('content', my_weights.tile_content_list, 'content', 100)
         hist.Draw()
         canvas.Update()
-        print 'Covariances ["x", "y"] after\n', test_bunch.covariance_matrix(['x', 'y'])
+        print('Covariances ["x", "y"] after\n', test_bunch.covariance_matrix(['x', 'y']))
 
     def test_apply_weights_bound(self):
         test_bunch = Bunch()
@@ -98,18 +98,18 @@ class VoronoiWeightingTestCase(unittest.TestCase):
         my_weights = VoronoiWeighting(['x', 'y'],
                                       numpy.array([[20., 0.],[0., 20.]]),
                                       voronoi_bound = bound)
-        print "Plotting weights", datetime.datetime.now()
+        print("Plotting weights", datetime.datetime.now())
         canvas, hist = test_bunch.root_histogram('x', 'mm', 'y', 'mm')
         hist.Draw("COLZ")
         canvas.Update()
-        print 'Covariances ["x", "y"] before\n', test_bunch.covariance_matrix(['x', 'y'])
-        print "Applying weights", datetime.datetime.now()
+        print('Covariances ["x", "y"] before\n', test_bunch.covariance_matrix(['x', 'y']))
+        print("Applying weights", datetime.datetime.now())
         my_weights.apply_weights(test_bunch, False)
-        print "Plotting tesselation", datetime.datetime.now()
+        print("Plotting tesselation", datetime.datetime.now())
         #my_weights.plot_two_d_projection(['x', 'y'], 'weight')
         my_weights.plot_two_d_projection(['x', 'y'], 'weight')
         my_weights.plot_two_d_projection(['x', 'y'], 'content')
-        print "Plotting weights", datetime.datetime.now()
+        print("Plotting weights", datetime.datetime.now())
         canvas, hist = test_bunch.root_histogram('x', 'mm', 'y', 'mm')
         hist.Draw("COLZ")
         canvas.Update()
@@ -122,7 +122,7 @@ class VoronoiWeightingTestCase(unittest.TestCase):
         hist = common.make_root_histogram('content', my_weights.tile_content_list, 'content', 100)
         hist.Draw()
         canvas.Update()
-        print 'Covariances ["x", "y"] after\n', test_bunch.covariance_matrix(['x', 'y'])
+        print('Covariances ["x", "y"] after\n', test_bunch.covariance_matrix(['x', 'y']))
 
     def plot_gauss(self, x_list, gauss_list):
         canvas = common.make_root_canvas("gauss")
@@ -200,7 +200,7 @@ class VoronoiWeightingTestCase(unittest.TestCase):
 
     def _test_content_hypersphere(self):
         # disabled because it is slow
-        print "Test content hypersphere"
+        print("Test content hypersphere")
         for i in range(5):
             numpy.seterr(all='ignore')
             test_bunch = Bunch()
@@ -225,9 +225,9 @@ class VoronoiWeightingTestCase(unittest.TestCase):
             my_weights.plot_two_d_projection(['px', 'py'])
             #self.assertEqual(len(my_weights.tile_content_list), len(test_bunch)+1)
             content_actual = sum(my_weights.tile_content_list)
-            print "Content", content_actual, "Predicted", content_predicted
+            print("Content", content_actual, "Predicted", content_predicted)
             self.assertAlmostEqual(content_actual, content_predicted, 0)
-        raw_input()
+        input()
 
     def test_content_hypercube(self):
         test_bunch = Bunch()

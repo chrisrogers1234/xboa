@@ -60,7 +60,6 @@ class UphillDownhillPeakFinder(object):
                 graph.SetPoint(i, y, x) # note this is intentionally backwards
             graph.Fit(self.fit, "NO")
             if draw:
-                #print x_list, y_list
                 canvas = common.make_root_canvas("derivatives")
                 canvas.Draw()
                 canvas.cd()

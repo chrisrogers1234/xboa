@@ -88,7 +88,7 @@ class MausRootReconHitFactory(HitFactoryBase):
                 delta_t = self._read_tof_01_slab_hits(tof_event)
             if len(delta_t) == 0 and self.fallback_on_digits:
                 delta_t = self._read_tof_01_digits(tof_event)
-            print
+            print()
             if len(delta_t) == 0:
                 continue
             for trackpoint in scifi_trackpoints:
@@ -135,7 +135,7 @@ class MausRootReconHitFactory(HitFactoryBase):
         space_points = tof_event.GetTOFEventSpacePoint()
         tof0_list = [t.GetTime() for t in space_points.GetTOF0SpacePointArray()]
         tof1_list = [t.GetTime() for t in space_points.GetTOF1SpacePointArray()]
-        print "number of tof0 sps:", len(tof0_list), "number of tof1_sps:", len(tof1_list), 
+        print("number of tof0 sps:", len(tof0_list), "number of tof1_sps:", len(tof1_list),)
         tof01_list = []
         for tof1 in tof1_list:
             for tof0 in tof0_list:
@@ -146,7 +146,7 @@ class MausRootReconHitFactory(HitFactoryBase):
         slab_hits = tof_event.GetTOFEventSlabHit()
         tof0_slabs = [hit.GetRawTime() for hit in slab_hits.GetTOF0SlabHitArray()]
         tof1_slabs = [hit.GetRawTime() for hit in slab_hits.GetTOF1SlabHitArray()]
-        print "number of tof0 slabs:", len(tof0_slabs), "number of tof1 slabs:", len(tof1_slabs), 
+        print("number of tof0 slabs:", len(tof0_slabs), "number of tof1 slabs:", len(tof1_slabs),)
         if len(tof0_slabs) > 0 and len(tof1_slabs) > 0:
             tof0_mean = sum(tof0_slabs)/len(tof0_slabs)
             tof1_mean = sum(tof1_slabs)/len(tof1_slabs)
@@ -157,7 +157,7 @@ class MausRootReconHitFactory(HitFactoryBase):
         digits = tof_event.GetTOFEventDigit()
         tof0_digs = [dig.GetLeadingTime() for dig in digits.GetTOF0DigitArray()]
         tof1_digs = [dig.GetLeadingTime() for dig in digits.GetTOF1DigitArray()]
-        print "number of tof0 digs:", len(tof0_digs), "number of tof1 digs:", len(tof1_digs), 
+        print("number of tof0 digs:", len(tof0_digs), "number of tof1 digs:", len(tof1_digs),)
         if len(tof0_digs) > 0 and len(tof1_digs) > 0:
             tof0_mean = sum(tof0_digs)/len(tof0_digs)
             tof1_mean = sum(tof1_digs)/len(tof1_digs)

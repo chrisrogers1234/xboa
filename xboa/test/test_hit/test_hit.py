@@ -21,7 +21,7 @@ __test_root_canvas = xboa.test.TestTools.test_root_canvas
 __test_root_graph = xboa.test.TestTools.test_root_graph
 
 import os
-import StringIO
+import io
 import sys
 import time
 import math
@@ -159,8 +159,8 @@ def hit_get_test(hit):
           if hit.get('eventNumber') in Hit._Hit__global_weights_dict: good = abs(Hit._Hit__global_weights_dict[ hit.get('eventNumber') ] - value) < __float_tol
           else: good = abs(1. - value) < __float_tol
         else:
-          print 'warning: key ',key,' not tested'
-        if not good: print 'Get test failed with',key,value
+          print('warning: key ',key,' not tested')
+        if not good: print('Get test failed with',key,value)
     except ZeroDivisionError:
       good = True
     test_pass = test_pass and good
@@ -184,7 +184,7 @@ def hit_set_test(hit):
         hit1.set(key, 'some_string')
         test_pass = test_pass and hit1.get(key) == 'some_string'
       if not test_pass: 
-        print 'Set test failed with key \''+str(key)+'\'',hit1.get(key), type(hit1.get(key))
+        print('Set test failed with key \''+str(key)+'\'',hit1.get(key), type(hit1.get(key)))
         return 'fail'
     except:
       pass
@@ -246,7 +246,7 @@ def hit_io_builtin_formatted_test(hit):
 
     os.remove('out_test')
     if test_pass == False:
-      print 'Failed on builtin format', key
+      print('Failed on builtin format', key)
       test_pass_all = False
   if test_pass_all: return 'pass'
   return 'fail'
@@ -290,7 +290,7 @@ def hit_set_g4bl_unit_test(hit):
   os.remove('set_g4bl_unit_test')
   for i in ['x','y','z']:
     if hit[i]/Common.units['cm'] != hit1[i]/Common.units['mm']: 
-      print 'Failed set_g4bl_unit_test',hit[i],hit1[i]
+      print('Failed set_g4bl_unit_test',hit[i],hit1[i])
       return 'fail'
   return 'pass'
 
@@ -300,10 +300,10 @@ def hit_get_maus_tree_test(hit_list): # also test get_list_of_maus_dicts
     maus_tree = Hit.get_maus_tree(hit_list, name)
     ev_dict = {}
     for hit in hit_list: ev_dict[hit['event_number']] = True
-    test_pass = test_pass and len(maus_tree) == len(ev_dict.keys())
+    test_pass = test_pass and len(maus_tree) == len(list(ev_dict.keys()))
     test_pass = test_pass and len(maus_tree[0]["mc_events"][0]["virtual_hits"]) > 0
     if not test_pass:
-      print json.dumps(maus_tree, indent=2)
+      print(json.dumps(maus_tree, indent=2))
   if test_pass: return 'pass'
   return 'fail'
 
@@ -343,8 +343,8 @@ def test_hit():
   passes += passesEq
   fails  += failsEq
   warns  += warnsEq
-  print '\n============\n||  HIT   ||\n============'
-  print 'Passed ',passes,' tests\nFailed ',fails,' tests\n',warns,' warnings\n\n\n'
+  print('\n============\n||  HIT   ||\n============')
+  print('Passed ',passes,' tests\nFailed ',fails,' tests\n',warns,' warnings\n\n\n')
   return (passes,fails,warns)
 
 class HitTest(unittest.TestCase):
@@ -356,10 +356,10 @@ class HitTest(unittest.TestCase):
     def _test_hit_memory(self):
         gc.collect()
         hitcore_memory = Hitcore.dump_memory()
-        for address, number_of_allocations in hitcore_memory.iteritems():
+        for address, number_of_allocations in hitcore_memory.items():
             if number_of_allocations != 0:
-                print "Hitcore not deleted at address", address, \
-                      "with", number_of_allocations, "remaining references"
+                print("Hitcore not deleted at address", address, \
+                      "with", number_of_allocations, "remaining references")
         self.assertEqual(sum(hitcore_memory.values()), 0)
 
     def test_hit_pickling(self):
