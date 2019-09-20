@@ -1,0 +1,526 @@
+#!/usr/bin/python
+#This file is a part of xboa
+#
+#xboa is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#xboa is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with xboa in the doc folder.  If not, see 
+#<http://www.gnu.org/licenses/>.
+#
+"""
+Set of algorithms designed to duplicate functionality of the postprocessor ecalc9. By default reads in input file ecalc9f.inp and outputs 
+a whole load of particle data (though see command line options below).
+  ecalc9f.inp contains (data on separate lines):
+    control_file_name_string is the file that will be read from
+    title                   (ascii)
+    ICOOL particle type     (int)   {muon = +/- 2}
+    pzmin,pzmax             (real)  [GeV/c]
+    transcutA,transcutB     (real)  [m]
+    longcut                 (real)  [m]
+    rffreq                  (real)  [MHz]
+    sigmacut                (real)  disabled (=0.)
+    pzcorr                  (log)   disabled (always false)
+    wrnew9                  (log)   disabled (always false)
+Additional command line options are:
+    -i=<filename>     <filename> is an input text file containing input particle data (default is 'for009.dat')
+    -t=<filetype>     <filetype> is the input particle data file type (default is 'icool_for009')
+    -c=<filename>     <filename> is the input control file (default is 'ecalc9f.inp')
+    -o=<filename>     <filename> is the output data file (default is 'ecalc9f.dat')
+    -p=<option>       <option>   is text that controls plots (default is no). If set to no, no plots will be created. Else produces
+                                 files in the format specified - options are png, pdf, ps, tiff, gif, jpg, xml, among others. Can pass
+                                 a comma separated list of formats, in which case files are made in each format.
+    -w=<filename>     <filename> is a file containing hit data; script will take weights for each event from this file; default is for weights from the input particle data file
+    -wt=<filetype>    <filetype> is the input particle data file type used for calculating weights (default is 'icool_for003')
+    --weight-event    Script will use event number from weight file
+    --weight-no-event Script will use position in weight file to make event number for weighting
+    --end-cut         Script will remove events that dont appear in the last station (sorted by station number) before performing any calculations
+    --no-end-cut      Don't make an end cut (default)
+    --p-cut-ref       Use pz relative to reference particle momentum in momentum cut
+    --p-cut-abs       Use absolute pz in momentum cut (default)
+    --p-cut-none      Don't make any momentum cut at all: equivalent to --p-cut-abs with pzmin and pzmax set to <= 0       
+
+e.g. as a command line script
+    ./ecalc9f.py -i=for003_mydeck.dat -t=icool_for003 -c=ecalc9f_mydeck.inp -o=ecalc9f_mydeck.dat -p=ps,png 
+will load particle data from file for003_mydeck.dat formatted like an icool_for003 file; read ecalc9f control from the
+file ecalc9f_mydeck.inp; write output data to ecalc9f_mydeck.dat; and produce a whole load of plots in png and postscript format
+
+Can also be run from python - see function documentation below.
+
+Outputs the following data:
+    station number
+    mean z         [m]
+    reference Bz   [T]
+    eperp          [m]
+    elong          [m]
+    e6D            [m^3]
+    Ldim
+    Pzavg          [MeV/c]
+    trans beta     [m]
+    trans alpha
+    long beta      [m]
+    long alpha 
+    n0             [particles]
+    n1             [particles]
+    n2             [particles]
+    Lcan(eVs)
+    sigmaE         [MeV]
+    sigmaT         [s]
+    corrE
+    corrT
+    sigmaE_c
+    mean x         [m]
+    mean y         [m]
+    x dispersion   [m]
+    y dispersion   [m]
+    r dispersion   [m]
+    r^2 dispersion [m]
+The first particle must follow a reference trajectory and have eventNumber 0
+"""
+
+try:
+  import xboa
+  import xboa.common as Common
+  import xboa.common.config as config
+  import xboa.hit
+  from xboa.hit import Hit
+  import xboa.bunch
+  from xboa.bunch import Bunch
+except ImportError, error:
+  print 'Error during x-boa import. Check your x-boa installation.'
+  raise error
+
+try:
+  import sys
+  import copy
+  import operator
+  import math
+  import string
+  import exceptions
+except ImportError:
+  print 'Error during python import. Check your python installation.'
+  raise ImportError
+
+def ecalc9f(data_filename_string, data_filetype_string, control_filename_string, output_filename_string, plot_format, end_cut, weight_filename_string, weight_filetype_string, weight_use_ev_number, use_ref_p_in_cut):
+  """
+  Reads file for009; reads file ecalc9.inp; parses data to produce output file ecalc9f.dat containing beta functions, emittances etc
+  """
+  config.has_numpy()
+  control_data = read_ecalc9_inp(control_filename_string)
+  if len(control_data) < 1: raise IOError('Failed to read control data file '+str(control_filename_string))
+  print control_data
+  if abs(control_data['sigmacut']) > 0.0000000001 or control_data['wrnew9'] or control_data['pzcorr']:
+    raise NotImplementedError('sigmacut, wrnew9 and pzcorr are disabled for now - ask the devs and they will implement it')
+
+  print 'Reading file ',data_filename_string,' of type ',data_filetype_string
+  bunch_list   = Bunch.new_list_from_read_builtin(data_filetype_string, data_filename_string)
+  if len(bunch_list) < 1: raise IOError('Failed to read input data')
+  bunch_out    = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+  out          = open(output_filename_string, 'w')
+  write_ecalc9f_dat_header(out, control_data)
+  weight_handler(end_cut, weight_filename_string, weight_filetype_string, weight_use_ev_number, bunch_list)
+  
+  for bunch in bunch_list:
+    try:
+      print bunch
+      get_bunch_data(control_data, bunch_out, bunch, use_ref_p_in_cut)
+    except:
+      if sys.exc_info()[0] == exceptions.KeyboardInterrupt: raise exceptions.KeyboardInterrupt
+      sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+      print 'Error handling station'
+  Common.multisort(bunch_out)
+  type_to_format = {type(0):'%4d', type(0.0):'%.3e'}
+  for i in range(len(bunch_out[0])):
+    for j in range(len(bunch_out)):
+      if bunch_out[j][i] >= 0.: out.write(' ') #account for - sign - must be a better way!!!
+      out.write(type_to_format[type(bunch_out[j][i])] %bunch_out[j][i]+'  ')
+    out.write('\n')
+  if not string.lower(plot_format) == 'no' or string.lower(plot_format) == 'n':
+    try:
+      make_root_plots(bunch_out, bunch_list, plot_format)
+    except ImportError:
+      print 'Failed to make plots using matplot - trying ROOT instead...'
+      try:
+        make_matplot_plots(bunch_out, bunch_list, plot_format)
+      except ImportError:
+        print 'Failed to make plots using ROOT too - no plots will be made...'
+  del(bunch_list) #force python to clean up most of the allocated memory
+  return control_data
+
+def weight_handler(end_cut, weight_filename_string, weight_filetype_string, weight_use_ev_number, bunch_list):
+  """
+  If required, set weights from external file; apply cut if event is in the last plane
+  """
+    
+  if weight_filename_string != None:
+    print 'Reading weight file ',weight_filename_string,' of type ',weight_filetype_string
+    weight_bunch = Bunch.new_from_read_builtin(weight_filetype_string, weight_filename_string)
+    if weight_use_ev_number:
+      for i in range( len(weight_bunch) ):
+        weight_bunch[i]['eventNumber'] = i
+    for hit in weight_bunch:
+      hit.set('global_weight', hit['local_weight'])
+  
+  if end_cut:
+    n_cuts = 0
+    print 'Cutting particles not appearing in station '+str(bunch_list[-1][0]['station'])
+    hit_dict = {}
+    for i in range( len(bunch_list[-1]) ):
+      hit_dict[bunch_list[-1][i]['eventNumber']] = True
+    for hit in bunch_list[0]:
+      if not hit['eventNumber'] in hit_dict:
+        hit.set('global_weight', 0.)
+        n_cuts+=1
+    print 'Cut '+str(n_cuts)+' events'
+
+def read_ecalc9f_dat(file_name):
+  """
+  Read ecalc9f.dat file; return bunch_out data
+  """
+  bunch_out = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+  ecalc_dat = open(file_name)
+  for i in range(14):
+    print ecalc_dat.readline().rstrip()
+  line = 'aline'
+  while(line != ''):
+    line  = ecalc_dat.readline().rstrip()
+    words = line.split()
+    for i in range(len(words)):
+      bunch_out[i].append(float(words[i]))
+  return bunch_out
+
+def remove_rf_period(rf_frequency, bunch):
+  bunch.period_transformation(bunch[0]['t'], rf_frequency)
+
+def dimensionless_lcan(bunch):
+  lcan = bunch.moment(['x','py']) - bunch.moment(['y','px']) +\
+         0.5*Common.constants['c_light']*bunch[0]['bz']*(bunch.moment(['x','x']) + bunch.moment(['y','y']))
+  return lcan/2./bunch[0]['mass']/bunch.get('emittance',['x','y'])
+
+def get_bunch_data(control_data, bunch_out, bunch, use_ref_p_in_cut):
+  if control_data['rffreq'] > 0.: remove_rf_period(control_data['rffreq'], bunch)
+  print 'station:',bunch[0]['station'],
+  print 'total weight before cuts',bunch.bunch_weight(),
+  if not bunch[0].check():
+    raise RuntimeError('Error - bad reference particle:\n'+repr(bunch[0]))
+  cut_p = 0.
+  if use_ref_p_in_cut: cut_p = bunch[0]['pz']
+
+#  bunch.cut({'status':0}, operator.ne) #BUG! need to map status in various formats to "good"
+  bunch.cut({'pid':control_data['pid']}, operator.ne)
+  bunch.cut({'eventNumber':0}, operator.eq)
+  if( use_ref_p_in_cut==True or (use_ref_p_in_cut==False and abs(control_data['pzmax']) > Common.float_tolerance) ):
+    bunch.cut({'pz':control_data['pzmax']+cut_p}, operator.ge)
+  if( use_ref_p_in_cut==True or (use_ref_p_in_cut==False and abs(control_data['pzmin']) > Common.float_tolerance) ):
+    bunch.cut({'pz':control_data['pzmin']+cut_p}, operator.le)
+  bunch.set_geometric_momentum(False)
+  bunch_weight = bunch.bunch_weight()
+  print 'total weight after cuts',bunch_weight
+  if abs(bunch_weight) < Common.float_tolerance or len(bunch) < 7:
+    raise( ZeroDivisionError( 'Error - bunch weight 0 or too few particles in bunch') )
+  bunch.set_covariance_matrix()
+    
+  for a_list in bunch_out: a_list.append(0.)
+  bunch_out[0][-1] = ( bunch[0]['station'] )
+  bunch_out[1][-1] = ( bunch[0]['z']/Common.units['m'] )
+  bunch_out[2][-1] = ( bunch[0]['bz']/Common.units['T'] )
+  bunch_out[3][-1] = ( bunch.get('emittance', ['x','y'])/Common.units['m'] )
+  bunch_out[6][-1] = ( dimensionless_lcan( bunch ) )
+  bunch_out[7][-1] = ( bunch.get('mean', ['pz'])/Common.units['GeV/c'] )
+  bunch_out[8][-1] = ( bunch.get('beta', ['x', 'y'])*bunch.mean(['pz'])['pz']/bunch.mean(['p'])['p']/Common.units['m'] )
+  bunch_out[9][-1] = ( bunch.get('alpha', ['x', 'y']) )
+  bunch_out[12][-1] = ( bunch_weight )
+  bunch_out[15][-1] = ( 10.*bunch.get_canonical_angular_momentum()/Common.constants['c_light']/Common.units['GeV'] ) #bug - where does factor 10. arise?
+  bunch_out[16][-1] = ( bunch.moment(['energy','energy'])**0.5/Common.units['GeV'] )
+  bunch_out[17][-1] = ( bunch.moment(['t','t'])**0.5/Common.units['s'] )
+  bunch_out[21][-1] = ( bunch.get('mean', ['x'])/Common.units['m'] )
+  bunch_out[22][-1] = ( bunch.get('mean', ['y'])/Common.units['m'] )
+  bunch_out[23][-1] = ( bunch.get('dispersion', ['x'])/Common.units['m'] )
+  bunch_out[24][-1] = ( bunch.get('dispersion', ['y'])/Common.units['m'] )
+  bunch_out[25][-1] = ( bunch.get('dispersion', ['r'])/Common.units['m'] )
+  bunch_out[26][-1] = ( bunch.get_dispersion_rsquared()/Common.units['m']/Common.units['m'] )
+  #pzcorr parameter disabled for now
+  bunch_out[4][-1] = ( (bunch.get('emittance', ['t'])*Common.constants['c_light']/Common.units['m'] ) )
+  bunch_out[5][-1] = ( (bunch.get('emittance', ['t', 'x', 'y'])/Common.units['m'])**3*Common.constants['c_light'] )
+  bunch_out[11][-1] = ( -bunch.get('alpha', ['t']) )
+  bunch_out[18][-1] = ( 0. )
+  bunch_out[19][-1] = ( 0. )
+  bunch_out[20][-1] = ( bunch_out[16][-1] )
+  delta = float( bunch.moment(['t','t']) )*Common.constants['c_light']/(bunch[0]['mass']*bunch_out[4][-1])/Common.units['s']
+  bunch_out[10][-1] = ( bunch.mean(['pz'])['pz']**3/(bunch[0]['mass']**2+bunch.mean(['pz'])['pz']**2)*delta*\
+                        Common.constants['c_light']*Common.units['s']/Common.units['m']/Common.units['GeV/c'])
+  mean_t   = bunch.mean(['t'])['t']
+  mean_e   = bunch.mean(['energy'])['energy']
+  n1       = 0.
+  n2       = 0.
+  gamma_t  = bunch.get_gamma(['x','y'])*bunch.mean(['p'])['p']/bunch.mean(['pz'])['pz']
+  mx  = bunch.mean(['x'])['x']
+  my  = bunch.mean(['y'])['y']
+  mpx = bunch.mean(['px'])['px']
+  mpy = bunch.mean(['py'])['py']
+  
+  for hit in bunch: 
+    if(abs(hit['weight']) > 1e-9):
+      try:
+        at = ecalc_amplitude(bunch, hit, bunch_out[8][-1]*Common.units['m'], bunch_out[9][-1], gamma_t, \
+                            bunch_out[6][-1], bunch_out[7][-1]*Common.units['GeV/c'], bunch_out[2][-1]*Common.units['T'],mx,my,mpx,mpy)
+        tc = (hit['t']      - mean_t)/Common.units['s']
+        ec = (hit['energy'] - mean_e)/Common.units['GeV/c']
+        al = (tc*tc/delta+delta*(ec - bunch_out[11][-1]*tc/delta)**2)*Common.constants['c_light']/bunch[0]['mass']*Common.units['s']*Common.units['m']
+        if al < control_data['longcut'] and at < control_data['transcutA'] and at >= 0.: n1 += hit['weight']
+        if al < control_data['longcut'] and at < control_data['transcutB'] and at >= 0.: n2 += hit['weight']
+      except: #exceptions if pz = 0 etc
+        pass
+  bunch_out[13][-1] = (n1)
+  bunch_out[14][-1] = (n2)
+
+def ecalc_amplitude(bunch, hit, beta_t, alpha_t, gamma_t, ldim, mean_pz, bz, mean_x, mean_y, mean_px, mean_py):
+  """
+  Ecalc has a slightly different way of defining (awkward?) amplitude
+  """
+  hit['x'] -= mean_x
+  hit['y'] -= mean_y
+  hit['px'] -= mean_px
+  hit['py'] -= mean_py
+  kappa = Common.constants['c_light']*bz/2./mean_pz
+  amp2  = beta_t/mean_pz *(hit['px']**2.+hit['py']**2.) + gamma_t*mean_pz*(hit['x']**2. +hit['y']**2. )\
+          + 2.*alpha_t*(hit['x']*hit['px']+hit['y']*hit['py']) + 2.*(beta_t*kappa - ldim)*(hit['x']*hit['py'] - hit['px']*hit['y'])
+  amp2 /= hit['mass']
+  return amp2
+
+def write_ecalc9_data_inp(file_name, data_dict):
+  """
+  Writes named file; format is either dat or inp (for 'ecalc9f.dat' or 'ecalc9f.inp') format
+    file_name = string containing file name to write to
+    format    = string, either 'dat' or 'inp', that determines the format
+    data_dict = dict of data to write
+  """
+  data        = copy.deepcopy(data_dict)
+  filehandle  = open(file_name, 'w')
+  data['pid'] = Common.pdg_pid_to_icool[data['pid']]
+  for i in range(len(__data_format)):
+    for j in range( len(__data_format[i]) ):
+      if __data_type[i][j] == 'line':
+        filehandle.write(data[ __data_format[i][j] ] )
+      if __data_type[i][j] == type(1.):
+        filehandle.write(repr( data[ __data_format[i][j] ]/Common.units[__data_units[i][j]])+' ' )
+      if __data_type[i][j] == type(1):
+        filehandle.write(repr( data[ __data_format[i][j] ])+' ' )
+      if __data_type[i][j] == type(True):
+        if data[ __data_format[i][j]]: filehandle.write('.true. ')
+        else:                         filehandle.write('.false. ')
+    filehandle.write('\n')
+
+def write_ecalc9f_dat_header(filehandle, data_dict):
+  """
+  Writes input data  in ecalc9f.dat format
+    filehandle = filehandle to write to
+    data_dict  = dict of data to write
+  """
+  data        = copy.deepcopy(data_dict)
+  data['pid'] = Common.pdg_pid_to_icool[data['pid']]
+  if data['pzcorr']: data['pzcorr'] = 'subtract out amplitude correlation'
+  else:              data['pzcorr'] = 'dont subtract out amplitude correlation'
+  if data['wrnew9']: data['wrnew9'] = 'wrnew9 = T'
+  else:              data['wrnew9'] = 'wrnew9 = F'
+  filehandle.write(' #'+data['title']+'\n'+'\n')
+  filehandle.write(' output from x-boa version '+xboa.__version__+'\n')
+  filehandle.write('  settings:\n')
+  filehandle.write('    particle type:      '+repr(data['pid'])+'\n' )
+  filehandle.write('    pzmin/pzmax:        '+repr(data['pzmin']/Common.units['GeV/c'])+' / '+repr(data['pzmax']/Common.units['GeV/c'])+'\n')
+  filehandle.write('    transverse cuts:    '+repr(data['transcutA']/Common.units['m'])+'  '+repr(data['transcutB']/Common.units['m'])+'\n')
+  filehandle.write('    longitudinal cut:   '+repr(data['longcut']/Common.units['m'])+'\n')
+  filehandle.write('    RF frequency (MHz): '+repr(data['rffreq']/Common.units['MHz'])+'\n')
+  filehandle.write('    sigma cut:          '+repr(data['sigmacut'])+'\n')
+  filehandle.write('    '+str(data['pzcorr'])+'\n')
+  filehandle.write('    '+str(data['wrnew9'])+'\n\n')
+  filehandle.write('regn #   Z           Bz          eperp       elong       e6D         Ldim        Pzavg       beta        alpha       betaL       alphaL      n0          n1          n2          Lcan(eVs)   sigmaE      sigmaT      corrE       corrT       sigmaE_c    xavg        yavg        Dx          Dy          Dr          Dr2\n')
+  
+def write_ecalc9_inp(file_name, data_dict):
+  """
+  Writes named file; format is either dat or inp (for 'ecalc9f.dat' or 'ecalc9f.inp') format
+    file_name = string containing file name to write to
+    format    = string, either 'dat' or 'inp', that determines the format
+    data_dict = dict of data to write
+  """
+  data        = copy.deepcopy(data_dict)
+  filehandle  = open(file_name, 'w')
+  data['pid'] = Common.pdg_pid_to_icool[data['pid']]
+
+
+def read_ecalc9_inp(control_file_name_string):
+  """
+  Reads named file; returns dict of variables to control ecalc 9 algorithms; 
+    control_file_name_string = name of the file containing control data (format described elsewhere)
+  """
+  filehandle = open(control_file_name_string, 'r')
+  if not filehandle: raise IOError('Failed to open file '+str(control_file_name_string))
+  data  = {}
+  for i in range(len(__data_format)):
+    line  = filehandle.readline().rstrip()
+    words = line.split()
+    for j in range( len(__data_format[i]) ):
+      try:
+        data[ __data_format[i][j] ] = words[j]
+        if __data_type[i][j] == type(1.):
+          data[ __data_format[i][j] ] = float(data[ __data_format[i][j] ])*Common.units[__data_units[i][j]]
+        elif __data_format[i][j] == 'pid':
+          data[ __data_format[i][j] ]  = Common.icool_pid_to_pdg[int(data[ __data_format[i][j] ])]
+        elif __data_type[i][j] == type(True):
+          data[ __data_format[i][j] ]  = data[ __data_format[i][j] ].lower().find('true') > -1
+        elif __data_type[i][j] == 'line':
+          data[ __data_format[i][j] ]  = line
+        else:
+          data[ __data_format[i][j] ] = __data_type[i][j]( data[ __data_format[i][j] ] )
+      except:
+        raise IOError('Error reading '+__data_format[i][j]+' from file '+control_file_name_string+' - read \''+str(words[j])+'\'')
+  return data
+
+def substitution(string_in, map_string_in_to_string_out):
+  """
+  Straight string substitution - no regular expression crap
+  """
+  string_out = repr('\''+string_in+'\'')
+  for sin,sout in map_string_in_to_string_out.iteritems():
+    string_out.replace(sin,sout)
+  return string_out
+
+def make_matplot_plots(bunch_data, bunch_list, format_string): 
+  """
+  Not called by default, but may be useful - makes plots like
+    all ecalc9 variables vs z; 
+    trans amplitude in;
+    trans amplitude out;
+    p in;
+    p out
+  """
+  import re
+  config.has_matplot()
+  import matplotlib
+  from matplotlib import pyplot
+  axis = [ r'$no$', r'$z$ [$m$]', r'$B_{z}$ [$T$]', r'$\epsilon_{\perp}$ [$m$]', r'$\epsilon_{//}$ [$m$]', r'$\epsilon_{6d}$ [$m^{3}$]', r'$L_{dim}$', r'$<P_z>$ [$GeV/c$]',
+           r'$\beta_{\perp}$ [$m$]', r'$\alpha_{\perp}$', r'$\beta_{//}$ [$m$]', r'$\alpha_{//}$', r'$n_{tot}$', r'$n_{1}$', 
+           r'$n_{2}$', r'$L_{can}$ [$s 10.*GeV/c$]', r'$\sigma_{E}$ [$GeV$]', r'$sigma_{t}$ [$s$]', r'$corr(E)$', '$corr(t)$', r'$\sigma_{Ec}$',
+           r'mean $x$ [$m$]', r'mean $y$ [$m$]', r'$D_{x}$ [$m$]', r'$D_{y}$ [$m$]', r'$D_{r}$ [$m$]', r'$D_{r^{2}}$ [$m$]']
+  x_ind = axis.index(r'$z$ [$m$]')
+  for y_ind in range( len(axis) ):
+    if not (axis[y_ind] == 'no' or y_ind == x_ind):
+      name = axis[x_ind]+' vs '+axis[y_ind]
+      string_swaps = {'//':'l', ' ':'_'}
+      for sin,sout in string_swaps.iteritems(): name = name.replace(sin,sout)
+      string_deletes = ['{','[',']','}','#','$','^','\\','*', '>', '<', '/']
+      for sin in string_deletes: name = name.replace(sin,'')
+      Common.make_matplot_graph(bunch_data[x_ind], axis[x_ind], bunch_data[y_ind], axis[y_ind])
+      for my_format in format_string.split(','):
+        pyplot.savefig(name+'.'+my_format, format=my_format)
+  bunch_in  = bunch_list[0]
+  bunch_out = bunch_list[-1]
+  bunch_in .matplot_histogram('amplitude [\'x\',\'y\']', x_axis_units='m')
+  for my_format in format_string.split(','):
+    pyplot.savefig('amp_in.'+my_format, format=my_format)
+  bunch_out.matplot_histogram('amplitude [\'x\',\'y\']', x_axis_units='m')
+  for my_format in format_string.split(','):
+    pyplot.savefig('amp_out.'+my_format, format=my_format)
+  bunch_in .matplot_histogram('p', x_axis_units='GeV/c')
+  for my_format in format_string.split(','):
+    pyplot.savefig('p_in.'+my_format, format=my_format)
+  bunch_out.matplot_histogram('p', x_axis_units='GeV/c')
+  for my_format in format_string.split(','):
+    pyplot.savefig('p_out.'+my_format, format=my_format)
+
+
+def make_root_plots(bunch_data, bunch_list, format_string): 
+  """
+  Not called by default, but may be useful - makes plots like
+    all ecalc9 variables vs z; 
+    trans amplitude in;
+    trans amplitude out;
+    p in;
+    p out
+  """
+  import re
+  config.has_root()
+  axis = [ 'no', 'z [m]', 'B_{z} [T]', '#epsilon_{#perp}   [m]', '#epsilon_{//} [m]', '#epsilon_{6d} [m^{3}]', 'L_{dim}', '<P_z> [GeV/c]',
+           '#beta_{#perp}   [m]', '#alpha_{#perp}', '#beta_{//} [m]', '#alpha_{//}', 'n_{tot} [particles]', 'n_{1} [particles]', 
+           'n_{2} [particles]', 'L_{can} [s 10.*GeV/c]', '#sigma_{E} [GeV]', 'sigma_{t} [s]', 'corr(E)', 'corr(t)', '#sigma_{Ec}',
+           'mean x [m]', 'mean y [m]', 'D_{x} [m]', 'D_{y} [m]', 'D_{r} [m]', 'D_{r^{2}} [m]']
+  x_ind = axis.index('z [m]')
+  for y_ind in range( len(axis) ):
+    if not (axis[y_ind] == 'no' or y_ind == x_ind):
+      name = axis[x_ind]+' vs '+axis[y_ind]
+      string_swaps = {'//':'l', ' ':'_'}
+      for sin,sout in string_swaps.iteritems(): name = name.replace(sin,sout)
+      string_deletes = ['{','[',']','}','#','$','^','\\','*', '>', '<', '/']
+      for sin in string_deletes: name = name.replace(sin,'')
+      canvas = Common.make_root_canvas(name)
+      (hist, graph) = Common.make_root_graph(name, bunch_data[x_ind], axis[x_ind], bunch_data[y_ind], axis[y_ind])
+      canvas.Draw()
+      hist.Draw()
+      graph.Draw()
+      for my_format in format_string.split(','):
+        canvas.Print(name+'.'+my_format)
+  bunch_in  = bunch_list[0]
+  bunch_out = bunch_list[0]
+  for my_format in format_string.split(','):
+    bunch_in .root_histogram('amplitude [\'x\',\'y\']', x_axis_units='m')[0].Print('amp_in.'+my_format)
+    bunch_out.root_histogram('amplitude [\'x\',\'y\']', x_axis_units='m')[0].Print('amp_out.'+my_format)
+    bunch_in .root_histogram('p', x_axis_units='GeV/c')[0].Print('p_in.'+my_format)
+    bunch_out.root_histogram('p', x_axis_units='GeV/c')[0].Print('p_out.'+my_format)
+
+__data_format = [['title'], ['pid'],   ['pzmin','pzmax'],   ['transcutA', 'transcutB'], ['longcut'], ['rffreq'], ['sigmacut'], ['pzcorr'],   ['wrnew9']]
+__data_type   = [['line'],  [type(1)], [type(1.),type(1.)], [type(1.), type(1.)],       [type(1.)],  [type(1.)], [type(1.)],   [type(True)], [type(False)]]
+__data_units  = [[''],      [''],      ['GeV/c','GeV/c'],   ['m', 'm'],                 ['m'],       ['MHz'],    [''],         [''],         ['']]
+
+config.has_numpy()
+
+def main(argv=None):
+  args = {}
+  filename   = 'for009.dat'
+  filetype   = 'icool_for009'
+  contname   = 'ecalc9f.inp'
+  outname    = 'ecalc9f.dat'
+  plots      = 'no'
+  weightfile = None
+  weighttype = 'icool_for003'
+  weightevt  = True
+  endcut     = False
+  refmom     = False
+
+  if argv == None: argv = sys.argv  
+  for arg in argv:
+    (arg_name,dummy,argument) = arg.partition('=')
+    args[arg_name] = argument
+  if '-i'  in args: filename   = args['-i']
+  if '-c'  in args: contname   = args['-c']
+  if '-t'  in args: filetype   = args['-t']
+  if '-o'  in args: outname    = args['-o']
+  if '-p'  in args: plots      = args['-p']
+  if '-w'  in args: weightfile = args['-w']
+  if '-wt' in args: weighttype = args['-wt']
+ #for these options - ordering means if both are defined it will use default
+  if '--weight-no-event' in args: weightevt = False
+  if '--weight-event'    in args: weightevt = True
+  if '--end-cut'         in args: endcut    = True
+  if '--no-end-cut'      in args: endcut    = False
+  if '--p-cut-ref'       in args: refmom    = True
+  if '--p-cut-abs'       in args: refmom    = False
+  if '--p-cut-none'      in args: refmom    = None  
+  
+  #if i am called as a script, execute ecalc loop
+  try:
+    ecalc9f(filename, filetype, contname, outname, plots, endcut, weightfile, weighttype, weightevt, refmom)
+  except:
+    print 'Error during running. Error was reported as\n  '
+    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+    return 1
+  return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

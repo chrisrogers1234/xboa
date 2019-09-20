@@ -1,0 +1,288 @@
+===============
+|||  X-BOA  |||
+===============
+
+Cross-Platform Beam Optics Analysis
+
+chris.rogers@stfc.ac.uk
+
+====================
+||| INSTALLATION |||
+====================
+
+To unpack, do:
+  tar -xzf xboa-<version>.tar.gz
+where <version> is the version number of this distribution. Then move into the <unpack_directory> by doing
+  cd xboa-<version>
+To build, do:
+  python setup.py build
+To install, do:
+  python setup.py install
+You may need admin privileges to install
+
+====================
+||| RUNNING      |||
+====================
+To test that the installation was okay, do:
+  cd ~/
+  python
+  >> import xboa.test.XBOATest
+  >> xboa.test.XBOATest.main()
+Note that you must move away from the build directory because python can otherwise get confused about paths.
+
+Assuming that xboa passed all the tests (there are usually a few warnings), you might want to run the examples.
+  >> import xboa.examples.Example_1
+  >> import xboa.examples.Example_2
+  >> import xboa.examples.Example_3
+  >> import xboa.examples.Example_4
+You can browse the source code by looking at e.g.
+  <unpack_directory>/xboa/examples
+You can, for example, modify one of these scripts for your own purposes.
+
+====================
+||| DIRECTORIES  |||
+====================
+The unpacked folder contains:
+doc:          contains documentation on each of the available source files
+xboa:          contains python and C source code
+xboa/examples: contains some example applications
+Documentation is usually installed by default in 
+usr/share/xboa/doc/
+or sometimes
+usr/local/share/xboa/doc/
+depending on the value of sys.exec_prefix parameter
+
+
+====================
+||| LIBARIES     |||
+====================
+
+I use the following python version:
+
+Python     v2.7   (basic python installation, mandatory to build x-boa)
+python-devel        (python header files)
+
+I use the following external packages. x-boa should run without them - but with limited functionality
+
+NumPy      v1.5.0   (linear algebra, matrix routines)
+MatPlotLib v1.1.0  (plotting routine library for plot output)
+Root       v5.32.00 (alternate plotting library)
+Json                (used for IO from MAUS, python builtin for python >= 2.6)
+Multiprocessing     (used for multiprocessing, python builtin for python >= 2.6)
+
+=====================
+||| Release Notes |||
+=====================
+Known Issues
+------------
+There is a known issue that Common.kill_all_subprocesses() fails for python < 2.6 - seems to crash PyROOT if I kill subprocesses
+
+Release Notes v0.16.2
+---------------------
+- A weighting algorithm was added for statistical weighting of bunches using
+  voronoi diagrams in xboa.bunch.weighting
+- Modifications were made to enable xboa to be integrated with MAUS
+- Few documentation fixes
+
+
+Release Notes v0.16.1
+---------------------
+Bug fixes:
+- Fixed a bug causing an intermittent memory error in bunch module
+- Fixed a bug where tune calculations can fail in FFTTuneFinder if the number of
+  turns is odd
+
+Release Notes v0.16.0
+---------------------
+tracking and algorithms modules were added. 
+- tracking module provides a common interface for tracking routines in different
+  codes.
+- algorithms module provides some maths and physics routines
+-- closed_orbit: closed orbit finder for ring geometries
+-- peak_finder: find peaks from a list of data points
+-- smoothing: smooth a noisy data set by averaging over a few points
+-- tune: tune finding routines for periodic geometries
+
+There was a significant refactor of the backend libraries
+- moved from C code to C++ code
+- segregated python API routines from logic
+Small refactor of frontend
+- input/read routines moved to hit.factory module
+- move towards python standardised names (e.g. under_scores for modules,
+  CamelCase for classes, under_scores for methods/functions)
+
+Release Notes v0.15.2
+---------------------
+Moment calculations did not use global weights
+
+Release Notes v0.15.1
+---------------------
+Fixed some memory issues
+Added ellipse fitting routine
+
+Release Notes v0.15.0
+---------------------
+Added Muon1 as a file type
+Fixed documentation to be compliant with doxygen (>= version 1.8)
+Added "spill" to Hit (index for spill number for MICE)
+global_weight now implemented as a mapping of (spill, event_number, particle_number) to (global_weight)
+
+Release Notes v0.14.0
+---------------------
+Added MAUS/ROOT IO
+Added standard deviation as an output
+Fixed a bug in G4BLTrackFile IO - when event number is more than 1e7, event number goes into scientific notation - which is a float.
+
+Release Notes v0.13.1
+---------------------
+Changed maus data format to reflect maus changes
+
+Release Notes v0.13.0
+---------------------
+Added multiprocessing wrapper to Common
+Added few more units
+Fixed bug - maus_virtual_hit IO fails if the branch structure is wrong
+Fixed bug - incorrect format of bltrackfile (weight, track_number)
+
+Release Notes v0.12.0
+---------------------
+Added maus_primary type to read and write
+Separated tests into smaller blocks (one test module for each module plus a system test module)
+
+Release Notes v0.11.0
+---------------------
+Added maus import to read and write in maus format (virtual_hits only)
+Added Bunch.build_penn_ellipse to build a beam ellipse using penn parameterisation
+Added Bunch.new_hit_shell to build a set of particles that all sit on the same (arbitrary dimensional) beam ellipse
+Added energy deposited parameter ('e_dep') for hit get/set
+Added charge parameter ('charge') for hit get/set
+Added list of unrecognised pids - updated by hit read_builtin
+Fixed bug in Common.min_max (if all weights 0, get unhandled exception)
+Fixed bug in units (GV was set wrong)
+Fixed bug in Common.make_root_graph (can alter input list ordering)
+
+Release Notes v0.10.0
+---------------------
+Added extra options for root plots
+Modifications to Common.histogram in 
+Added kolmogorov smirnov in Common test
+Fixed bug - write throws and exception for icool formats if there is an unrecognised pid; now just skips the pid and moves on
+Fixed bug - if numpy is not available, library doesn't import
+Fixed bug - one of the examples fails if matplotlib is available
+
+Release Notes v0.9.0
+--------------------
+Moved to bzr versioning system
+
+Release Notes v0.8.3
+--------------------
+Fixed bugs in XBOA9f
+Improved test procedure
+Fixed bug in matplotlib
+Added Common.subprocess() function
+Add Common.matplot_show_and_continue()
+
+Release Notes v0.8.2
+--------------------
+Fixed bug in Bunch.root_histogram and changed default draw option to COL
+Fixed bug in g4beamline format for read_builtin and set_g4bl_unit
+
+Release Notes v0.8.1
+--------------------
+Fixed bug in g4beamline format
+Fixed some typos in documentation
+
+Release Notes v0.8
+------------------
+Added examples
+Added Bunch.transmission_cut
+Added Bunch.new_list_from_read_builtin
+Improved memory usage
+Added several examples to XBOA9f
+Fixed bug - binary release fails with incompatible libc
+Fixed bug - so that Ecalc9f script exactly matches reference data
+Fixed bug - read could fail unexpectedly in some cases
+Fixed bug - ellipse definition
+
+
+Release Notes v0.7
+------------------
+Some bug fixes in Ecalc9f
+Several routines ported to C for optimisation reasons - should be no changes visible to the user, but
+it will run more quickly!
+
+Release Notes v0.6
+------------------
+Standalone executables released for Linux, rearrange directory structure in release
+Period_transformation added to Bunch
+Ellipse method added to Bunch to get 2D ellipse from twiss parameters
+Added G4MICE Virtual Hits format
+Ecalc9f matplotlib output uses tex formatting
+Enable editing of header for relevant output formats
+Bug fix - g4mice input failed in some cases
+Bug fix - set_covariance_matrix failed in some cases
+Added mars_1 i/o format (mars output from wurstp format)
+Bug fix - Common.make_matplot_histogram sees weights in 1D case
+Added r' = pt/pz to Hit.get_variables()
+
+Release Notes v0.5
+------------------
+Added bindings to matplotlib plotting library
+
+Release Notes v0.4
+------------------
+Added:
+  file_convert example
+  Bunch.root_scatter_graph function to draw scatter graphs
+
+Release Notes v0.3
+------------------
+Added:
+  app packager
+  ecalc9f example
+  canonical angular momentum calculation
+
+Release Notes v0.2
+------------------
+Added test suite
+Documentation improvements
+Functional improvements
+
+Release Notes v0.1
+------------------
+Implemented Bunch, Hit and Common modules
+
+
+===============================
+||| Planned Development/etc |||
+===============================
+Enhancements:
+If you have a need, again, please get in touch
+- Edwards-Teng parameterisation
+- Mais-Ripken parameterisation
+- Windows binary distribution
+- plotting RF bucket
+- transfer matrix and lattice optical functions calculation
+- iterative amplitude algorithm
+- phase as an axis variable (as well as time)
+- Fully replicate ecalc9f - some options missing
+
+
+===============
+||| LICENCE |||
+===============
+xboa is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+xboa is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with xboa in the doc folder.  If not, see 
+<http://www.gnu.org/licenses/>.
+
+

@@ -1,0 +1,14 @@
+ #Test Data For BOA
+
+ output from x-boa version 0.7.1
+  settings:
+    particle type:      2
+    pzmin/pzmax:        -0.050000000000000003 / 0.050000000000000003
+    transverse cuts:    0.014999999999999999  0.029999999999999999
+    longitudinal cut:   0.14999999999999999
+    RF frequency (MHz): 200.0
+    sigma cut:          0.0
+    dont subtract out amplitude correlation
+    wrnew9 = F
+
+regn #   Z           Bz          eperp       elong       e6D         Ldim        Pzavg       beta        alpha       betaL       alphaL      n0          n1          n2          Lcan(eVs)   sigmaE      sigmaT      corrE       corrT       sigmaE_c    xavg        yavg        Dx          Dy          Dr          Dr2

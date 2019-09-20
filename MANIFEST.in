@@ -1,0 +1,13 @@
+include MANIFEST.in
+include setup.py
+
+recursive-include xboa *.cc *.hh
+recursive-include doc *.html COPYING  Doxyfile  doxygen_intro.h
+include xboa/examples/example_data/*.inp
+include xboa/examples/example_data/*.dat
+include xboa/examples/example_data/*.out.gz
+include README
+#recursive-include test test_* TestTools.py XBOATest.py
+
+prune *.html
+
