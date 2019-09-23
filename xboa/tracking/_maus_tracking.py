@@ -31,7 +31,7 @@ from xboa import common
 from xboa.common import config
 from xboa.hit import Hit
 
-from _tracking_base import TrackingBase 
+from ._tracking_base import TrackingBase 
 
 class MAUSTracking(TrackingBase):
     """

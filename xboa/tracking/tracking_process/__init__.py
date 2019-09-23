@@ -25,9 +25,9 @@ Implemented within this module:
 \li \link xboa::tracking::tracking_process::_tracking_process::TrackingProcess TrackingProcess \endlink: base class that defines an interface suitable for distributing tracking
 \li \link xboa::tracking::tracking_process::_this_node_process::ThisNodeProcess ThisNodeProcess\endlink: uses the subprocess module to run subprocesses on this node
 """
-from _tracking_process import TrackingProcess
-from _this_node_process import ThisNodeProcess
-from _bsub_process import BSubProcess
+from ._tracking_process import TrackingProcess
+from ._this_node_process import ThisNodeProcess
+from ._bsub_process import BSubProcess
 
 __all__ = ["TrackingProcess", "ThisNodeProcess", "BSubProcess"]
 

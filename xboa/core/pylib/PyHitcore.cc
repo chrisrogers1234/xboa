@@ -160,14 +160,14 @@ static PyMemberDef _members[] = {
 static PyMethodDef _methods[] = {
 {"get", (PyCFunction)get,  METH_VARARGS|METH_KEYWORDS, NULL},
 {"get_variables", (PyCFunction)get_variables,
-                          METH_STATIC, get_variables_docstring.c_str()},
+                          METH_VARARGS/*METH_STATIC*/, get_variables_docstring.c_str()},
 {"set", (PyCFunction)set, METH_VARARGS|METH_KEYWORDS, NULL},
 {"set_variables", (PyCFunction)set_variables,
-                          METH_STATIC, set_variables_docstring.c_str()},
+                          METH_VARARGS/*METH_STATIC*/, set_variables_docstring.c_str()},
 {"clear_global_weights", (PyCFunction)clear_global_weights,
-                          METH_STATIC, clear_global_weights_docstring.c_str()},
+                          METH_VARARGS/*METH_STATIC*/, clear_global_weights_docstring.c_str()},
 {"dump_memory", (PyCFunction)dump_memory,
-                          METH_STATIC, dump_memory_docstring.c_str()},
+                          METH_VARARGS/*METH_STATIC*/, dump_memory_docstring.c_str()},
 {NULL} // sentinel
 };
 

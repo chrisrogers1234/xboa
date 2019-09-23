@@ -23,7 +23,7 @@ Implemented within this module:
 \li \link xboa::algorithms::tune::_fft_tune::FFTTuneFinder FFTTuneFinder \endlink: 
     FFT wrapper routines for getting the tune from a set of positional data.
 """
-from _fft_tune import FFTTuneFinder
-from _dphi_tune import DPhiTuneFinder
+from ._fft_tune import FFTTuneFinder
+from ._dphi_tune import DPhiTuneFinder
 
 __all__ = ["FFTTuneFinder", "DPhiTuneFinder"]

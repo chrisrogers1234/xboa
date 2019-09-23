@@ -3,7 +3,6 @@ Test runner walks through the directory structure at xboa/test and searches for
 test_*.py
 """
 
-
 import os
 try:
   import coverage

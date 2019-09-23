@@ -30,16 +30,17 @@ Implemented within this module:
                 using simple transfer matrices
 """
 
-from _matrix_tracking import MatrixTracking
-from _maus_tracking import MAUSTracking
-from _tracking_base import TrackingBase
-from _timeout_tracking import TimeoutTracking
-from _multitrack import MultiTrack
-import tracking_process
+from ._matrix_tracking import MatrixTracking
+from ._maus_tracking import MAUSTracking
+from ._tracking_base import TrackingBase
+from ._timeout_tracking import TimeoutTracking
+from ._multitrack import MultiTrack
+import xboa.tracking.tracking_process as tracking_process
 
 __all__ = ["MatrixTracking",
            "MAUSTracking",
            "TrackingBase",
            "TimeoutTracking",
            "MultiTrack"]
+
 

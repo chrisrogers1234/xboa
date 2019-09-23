@@ -28,8 +28,8 @@ Implemented within this module:
   a single iteration of the closed orbit finder
 """
 
-from _ellipse_closed_orbit_finder import EllipseClosedOrbitFinder
-from _ellipse_closed_orbit_finder import EllipseClosedOrbitFinderIteration
+from ._ellipse_closed_orbit_finder import EllipseClosedOrbitFinder
+from ._ellipse_closed_orbit_finder import EllipseClosedOrbitFinderIteration
 
 __all__ = ["EllipseClosedOrbitFinder", "EllipseClosedOrbitFinderIteration"]
 

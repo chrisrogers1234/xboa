@@ -22,7 +22,7 @@ import os
 import pickle
 import subprocess
 
-from _tracking_process import TrackingProcess
+from ._tracking_process import TrackingProcess
 
 # Could potentially use multiprocessing with pickle used to do in memory
 # messaging (rather than relying on disk writes to handle messaging, which can

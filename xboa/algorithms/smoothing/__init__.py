@@ -12,8 +12,8 @@ Implemented within this module:
 """
 
 
-from _gaussian_smoothing import GaussianSmoothing
-from _fit_smoothing import FitSmoothing
-from _cut_smoothing import CutSmoothing
+from ._gaussian_smoothing import GaussianSmoothing
+from ._fit_smoothing import FitSmoothing
+from ._cut_smoothing import CutSmoothing
 
 __all__ = ["GaussianSmoothing", "FitSmoothing", "CutSmoothing"]

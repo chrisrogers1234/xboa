@@ -810,9 +810,10 @@ class Hit(object):
 
   __get_keys = []
   __set_keys = []
-  for key in Hitcore.get_variables(): 
+  __static_dummy = Hitcore()
+  for key in __static_dummy.get_variables(): 
     __get_keys.append(key)
-  for key in Hitcore.set_variables(): 
+  for key in __static_dummy.set_variables(): 
     __set_keys.append(key)
   for key, value in __get_variables.items(): 
     __get_keys.append(key)

@@ -16,7 +16,10 @@
 # <http://www.gnu.org/licenses/>.
 
 import json
-import ROOT
+try:
+    import ROOT
+except ImportError:
+    raise
 import xboa.common as common
 import xboa.hit.factory
 from xboa.hit.factory import HitFactoryBase

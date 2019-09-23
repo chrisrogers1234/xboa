@@ -11,7 +11,7 @@ xboa/core/utils/ provides some utility functions like smart pointers, converters
 for converting python <-> C++ structures, etc.
 """
 
-#from xboa.core._hitcore import Hitcore
-#from xboa.core._bunchcore import Bunchcore
+from xboa.core._hitcore import Hitcore
+from xboa.core._bunchcore import Bunchcore
 
 

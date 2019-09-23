@@ -14,9 +14,9 @@ Implemented within this module:
     position for the peaks as a seed.
 """
 
-from _window_peak_finder import WindowPeakFinder
-from _uphill_downhill_peak_finder import UphillDownhillPeakFinder
-from _refine_peak_finder import RefinePeakFinder
+from ._window_peak_finder import WindowPeakFinder
+from ._uphill_downhill_peak_finder import UphillDownhillPeakFinder
+from ._refine_peak_finder import RefinePeakFinder
 
 __all__ = ["WindowPeakFinder", "UphillDownhillPeakFinder", "RefinePeakFinder"]
 

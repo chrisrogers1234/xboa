@@ -24,7 +24,7 @@ import numpy
 
 from xboa import common as Common
 from xboa.hit import Hit
-from _tracking_base import TrackingBase 
+from ._tracking_base import TrackingBase 
 
 class MatrixTracking(TrackingBase):
     """

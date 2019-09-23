@@ -31,10 +31,10 @@ Implemented within this module:
     peak finding routines.
 """
 
-import closed_orbit
-import tune
-import peak_finder
-import smoothing
+import xboa.algorithms.closed_orbit as closed_orbit
+import xboa.algorithms.tune as tune
+import xboa.algorithms.peak_finder as peak_finder
+import xboa.algorithms.smoothing as smoothing
 
 __all__ = ["closed_orbit", "tune", "smoothing", "peak_finder"]
 
