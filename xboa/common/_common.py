@@ -39,7 +39,7 @@ import signal
 import ctypes
 from . import config
 try:
-    pass #import ROOT
+    import ROOT
 except ImportError:
     pass
 try:
