@@ -33,22 +33,18 @@ Implemented within this module:
 
 try:
     import xboa.algorithms.closed_orbit
-    closed_orbit = xboa.algorithms.closed_orbit
 except ImportError:
     pass
 try:
     import xboa.algorithms.tune
-    tune = xboa.algorithms.tune
 except ImportError:
     pass
 try:
     import xboa.algorithms.peak_finder
-    peak_finder = xboa.algorithms.peak_finder
 except ImportError:
     pass
 try:
     import xboa.algorithms.smoothing
-    smoothing = xboa.algorithms.smoothing
 except ImportError:
     pass
 
