@@ -21,7 +21,7 @@ try:
 except ImportError:
     pass
 import xboa.common
-import xboa.common.config as config
+import xboa.common.config
 
 
 def make_histogram(x_float_list, x_axis_string, n_x_bins,
@@ -44,8 +44,8 @@ def make_histogram(x_float_list, x_axis_string, n_x_bins,
 
     After building the graph, use matplotlib.pyplot.show() to show something on the screen
     """
-    config.has_matplot()
-    config.has_numpy()
+    xboa.common.config.has_matplot()
+    xboa.common.config.has_numpy()
     fig_index = get_figure_index(fig_index)
     pyplot.figure(fig_index)
     if(len(x_float_list) == 0):
@@ -98,7 +98,7 @@ def make_graph(x_float_list, x_axis_string,
 
     Returns the matplotlib figure index for this figure.
     """
-    config.has_matplot()
+    xboa.common.config.has_matplot()
     fig_index = get_figure_index(fig_index)
     pyplot.figure(fig_index)
     if(len(x_float_list) == 0 or len(x_float_list) != len(y_float_list)):
@@ -141,7 +141,7 @@ def make_multigraph(x_float_list_of_lists, x_axis_string,
                 [[1.,2.,3.,4.],[1.,2.,3.,4.]], 'f(x)') 
     will make a graph of f = x and  f = x^0.5
     """
-    config.has_matplot()
+    xboa.common.config.has_matplot()
     fig_index = get_figure_index(fig_index)
     pyplot.figure(fig_index)
     total_x_list  = []
@@ -180,7 +180,7 @@ def make_scatter(x_float_list, x_axis_string, y_float_list, y_axis_string, fig_i
 
     Returns the fig_index used to make the plot
     """
-    config.has_matplot()
+    xboa.common.config.has_matplot()
     fig_index = get_figure_index(fig_index)
     pyplot.figure(fig_index)
     if(len(x_float_list) == 0 or len(x_float_list) != len(y_float_list)):
@@ -199,7 +199,7 @@ def wait_for_matplot(block=False):
     - block: set to True to block python until windows are closed; set to False
              to continue running python
     """
-    config.has_matplot()
+    xboa.common.config.has_matplot()
     matplotlib.pyplot.show(block)
 
 def get_figure_index(fig_index):
