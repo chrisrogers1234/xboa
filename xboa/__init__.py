@@ -27,6 +27,6 @@ whole lot more!
 
 """
 
-__version__ = '1.0.0'
-__all__ = ['bunch', 'hit', 'Common', 'tracking', 'algorithms']
+__version__ = '0.17.0'
+__all__ = ['bunch', 'hit', 'common', 'tracking', 'algorithms']
 

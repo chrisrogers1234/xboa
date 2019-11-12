@@ -25,5 +25,5 @@ import sys
 sys.stderr.write("Warning - importing deprecated xboa.Common module,"+\
                  " use xboa.common instead\n")
 
-from common._common import *
+from xboa.common._common import *
 

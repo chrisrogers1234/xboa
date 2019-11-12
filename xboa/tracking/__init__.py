@@ -35,7 +35,7 @@ from ._maus_tracking import MAUSTracking
 from ._tracking_base import TrackingBase
 from ._timeout_tracking import TimeoutTracking
 from ._multitrack import MultiTrack
-import xboa.tracking.tracking_process as tracking_process
+import xboa.tracking.tracking_process
 
 __all__ = ["MatrixTracking",
            "MAUSTracking",
