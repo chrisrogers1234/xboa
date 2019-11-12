@@ -2,6 +2,8 @@ import sys
 import math
 import numpy
 import xboa.common
+import xboa.common.matplotlib_wrapper as matplotlib_wrapper
+
 
 from xboa.algorithms.closed_orbit import EllipseClosedOrbitFinderIteration
 from xboa.algorithms.peak_finder import WindowPeakFinder
@@ -23,7 +25,7 @@ class DPhiTuneFinder(object):
         if self.u == None or self.up == None:
             raise ValueError("Missing data set for Tune calculation")
 
-        points = zip(self.u, self.up)
+        points = list(zip(self.u, self.up))
         try:
             self.centre, self.ellipse = xboa.common.fit_ellipse(
                                               points,
@@ -51,11 +53,10 @@ class DPhiTuneFinder(object):
                 with an index in use_hits. If set to None, consider all hits.
         """
         hit = reference_hit.deepcopy()
+        self.axis1 = axis1
+        self.axis2 = axis2
         hit[axis1] += delta1
         hit[axis2] += delta2
-        print("run_tracking")
-        print("  test:", hit)
-        print("  ref: ", reference_hit)
         hits_out = tracking.track_one(hit)
         if use_hits != None:
             hits_out = [hit for i, hit in enumerate(hits_out) if i in use_hits]
@@ -85,7 +86,7 @@ class DPhiTuneFinder(object):
             old_phi = phi
             index += 1
 
-    def plot_phase_space(self):
+    def plot_phase_space_root(self):
         """
         Plot the raw phase space used in the tune calculation.
 
@@ -100,7 +101,7 @@ class DPhiTuneFinder(object):
         ps_canvas.Update()
         return ps_canvas, ps_hist, ps_graph
 
-    def plot_cholesky_space(self, circle_canvas = None, scale = 1.):
+    def plot_cholesky_space_root(self, circle_canvas = None, scale = 1.):
         """
         Plot the cholesky space used in the tune calculation.
 
@@ -118,7 +119,6 @@ class DPhiTuneFinder(object):
         """
         circle_x = [point[0]*scale for point in self.point_circles]
         circle_y = [point[1]*scale for point in self.point_circles]
-        print(len(circle_x), len(circle_y))
         circle_hist, circle_graph = xboa.common.make_root_graph("dphi circle", circle_x, "", circle_y, "")
         circle_hist.SetTitle("Fitted points after Cholesky decomposition to circle")
         if circle_canvas == None:
@@ -128,4 +128,39 @@ class DPhiTuneFinder(object):
         circle_graph.Draw("PSAME")
         circle_canvas.Update()
         return circle_canvas, circle_hist, circle_graph
+
+    def plot_phase_space_matplotlib(self, x_label, y_label, fig_index=None):
+        """
+        Plot the raw phase space used in the tune calculation.
+        - fig_index: index of matplot figure; set to None to create a new figure
+
+        Returns the fig_index
+        """
+        fig_index = matplotlib_wrapper.make_scatter(self.u, x_label,
+                                                  self.up, y_label,
+                                                  fig_index=fig_index)
+        return fig_index
+
+
+    def plot_cholesky_space_matplotlib(self, fig_index = None, scale = 1.):
+        """
+        Plot the cholesky space used in the tune calculation.
+
+        - fig_index: index of matplot figure; set to None to create a new figure
+        - scale: scale points by a factor (for example to draw several circles
+                 on the same axes by scaling each circle by a small amount)
+
+        The tune calculation works by fitting an ellipse to the data and then
+        projecting the ellipse onto a circle; and calculating the advance from
+        one point to the next. This plots the ellipse after projecting onto a
+        circle.
+
+        Returns a tuple of canvas, axes histogram, graph
+        """
+        circle_x = [point[0]*scale for point in self.point_circles]
+        circle_y = [point[1]*scale for point in self.point_circles]
+        fig_index = matplotlib_wrapper.make_scatter(circle_x, "",
+                                                  circle_y, "",
+                                                  fig_index=fig_index)
+        return fig_index
 

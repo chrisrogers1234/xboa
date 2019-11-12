@@ -39,14 +39,19 @@ Implemented within this module:
   HitFactoryBase \endlink: Base class for all other hit factory classes.
 """
 
+all = ["HitFactoryBase", "LineFactoryBase", "UserHitFactory",
+       "BuiltinHitFactory", "OpalHitFactory", "MausJsonHitFactory"]
+
 from xboa.hit.factory._hit_factory_base import HitFactoryBase
 from xboa.hit.factory._line_factory_base import LineFactoryBase
-from xboa.hit.factory._maus_root_hit_factory import MausRootHitFactory
-from xboa.hit.factory._maus_root_recon_hit_factory import MausRootReconHitFactory
 from xboa.hit.factory._maus_json_hit_factory import MausJsonHitFactory
 from xboa.hit.factory._builtin_hit_factory import BuiltinHitFactory
 from xboa.hit.factory._user_hit_factory import UserHitFactory
 from xboa.hit.factory._opal_hit_factory import OpalHitFactory
+try:
+    from xboa.hit.factory._maus_root_hit_factory import MausRootHitFactory
+    from xboa.hit.factory._maus_root_recon_hit_factory import MausRootReconHitFactory
+    all += ["MausRootHitFactory", "MausRootReconHitFactory"]
+except ImportError:
+    pass
 
-all = ["HitFactoryBase", "LineFactoryBase", "UserHitFactory",
-       "BuiltinHitFactory", "OpalHitFactory", "MausJsonHitFactory"]

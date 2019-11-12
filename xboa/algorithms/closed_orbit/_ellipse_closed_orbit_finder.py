@@ -26,6 +26,7 @@ try:
 except ImportError:
     pass
 import xboa.common as common
+import xboa.common.matplotlib_wrapper as matplotlib_wrapper
 import xboa.common.config as config
 
 class EllipseClosedOrbitFinder(object):
@@ -270,7 +271,7 @@ class EllipseClosedOrbitFinderIteration(object):
             return 0.
         return var_noise**0.5
 
-    def plot_ellipse(self, x_axis_string, y_axis_string,
+    def plot_ellipse_root(self, x_axis_string, y_axis_string,
                      x_axis_units, y_axis_units,
                      marker_style=4,
                      title_string='fit', canvas=None):
@@ -328,6 +329,52 @@ class EllipseClosedOrbitFinderIteration(object):
                                                      x_min, x_max, y_min, y_max)
         canvas.Update()
         return canvas, hist, ellipse, graph
+
+
+    def plot_ellipse_matplotlib(self, x_axis_string, y_axis_string,
+                                   x_axis_units="", y_axis_units=""):
+        """
+        Plot the beam ellipse for a set of points
+        - x_axis_string: string name of the variable to go on the x_axis
+        - y_axis_string: string name of the variable to go on the y_axis
+        - x_axis_units: string units on the x axis; leave blank for no units
+        - y_axis_units: string units on the y axis; leave blank for no units
+
+        Return value is a tuple of (canvas, histogram, ellipse, graph) where
+        canvas is an object of type ROOT.TCanvas, histogram is an object of type
+        ROOT.TH2D, ellipse is an object of type ROOT.TF2 and graph is an object
+        of type ROOT.TGraph
+        """
+        config.has_matplotlib()
+        x_var = self.keys.index(x_axis_string)
+        x_list = [x[x_var]*common.units[x_axis_units] for x in self.points]
+        y_var = self.keys.index(y_axis_string)
+        y_list = [x[y_var]*common.units[y_axis_units] for x in self.points]
+        if x_axis_units != '':
+            x_axis_string += ' ['+x_axis_units+']'
+        if y_axis_units != '':
+            y_axis_string += ' ['+y_axis_units+']'
+        fig_index = matplotlib_wrapper.make_scatter(x_list, x_axis_string, 
+                                                    y_list, y_axis_string)
+        """
+        if type(self.centre) != type(None):
+            ell_centre = [self.centre[x_var], self.centre[y_var]]
+            ell_matrix = [
+                [self.ellipse[x_var, x_var], self.ellipse[x_var, y_var]],
+                [self.ellipse[x_var, y_var], self.ellipse[y_var, y_var]]
+            ]
+            x_list, y_list = [None]*361, [None]*361
+            for i in range(361):
+                theta = math.radians(i)
+                x_list[i] = ell_centre[0]+ell_matrix[0][0]**0.5*math.cos(theta)
+                y_list[i] = ell_centre[1]+ell_matrix[1][1]**0.5*math.sin(theta)
+            matplotlib_wrapper.make_matplot_graph(x_list, x_axis_string,
+                                                  y_list, y_axis_string,
+                                                  sort=False,
+                                                  fig_index=fig_index)
+        """
+        return fig_index
+
 
     def json_repr(self):
         """

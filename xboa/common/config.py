@@ -104,5 +104,11 @@ def has_json():
     raise ImportError("Attempt to use json when library has not been imported - check your json installation (python >= 2.6)")
   return True
 
+def has_matplotlib():
+  """Raise an exception if matplotlib has not been imported properly"""
+  if not PACKAGES["matplot"]:
+    raise ImportError("Attempt to use matplotlib when library has not been imported - check your matplotlib installation")
+  return True
+
 
 

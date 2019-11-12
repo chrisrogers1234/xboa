@@ -21,5 +21,6 @@ common module defines common utility data and functions that are used elsewhere
 """
 
 import xboa.common.config
+import xboa.common.matplotlib_wrapper
 from ._common import *
 
