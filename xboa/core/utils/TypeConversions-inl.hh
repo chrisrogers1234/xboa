@@ -42,7 +42,7 @@ bool PyCppStringConverter::convert(PyObject* py_string,
     if (py_string && PyUnicode_Check(py_string)) {
         PyObject* bytes = PyUnicode_AsASCIIString(py_string);
         if (bytes) {
-            *cpp_string = std::string(PyBytes_AsString(py_string));
+            *cpp_string = std::string(PyBytes_AsString(bytes));
             return true;
         }
     }
