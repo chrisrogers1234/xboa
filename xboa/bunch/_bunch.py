@@ -1058,12 +1058,12 @@ class Bunch:
           Cov(x,px) Var(px,px)
     and |V| is the determinant.
     """
-    if geometric == None: geometric = Bunch.__geometric_momentum
+    if geometric is None: geometric = Bunch.__geometric_momentum
     cov_list  = Bunch.axis_list_to_covariance_list(axis_list)
     my_cov    = copy.deepcopy(covariance_matrix)
-    if my_cov == None:
+    if my_cov is None:
       my_cov = self.__cov_mat_picker(axis_list)
-      if my_cov == None: 
+      if my_cov is None: 
         my_cov = self.covariance_matrix(cov_list)
     emittance = linalg.det(my_cov)**(1./len(cov_list))
     if not Bunch.__geometric_momentum:
@@ -1148,11 +1148,11 @@ class Bunch:
         mean_dict = bunch.mean(cov_list)
     my_vector = hit.get_vector(cov_list, mean_dict)
     my_cov    = copy.deepcopy( covariance_matrix )
-    if my_cov == None:
+    if my_cov is None:
       my_cov = bunch.__cov_mat_picker(axis_list)
-      if my_cov == None:
+      if my_cov is None:
         my_cov = bunch.covariance_matrix(cov_list)
-    my_amp    = my_vector*linalg.inv(my_cov)*my_vector.T
+    my_amp = my_vector*linalg.inv(my_cov)*my_vector.T
     return float(my_amp[0,0])*bunch.get_emittance(axis_list, my_cov)
   get_amplitude = staticmethod(get_amplitude)
 

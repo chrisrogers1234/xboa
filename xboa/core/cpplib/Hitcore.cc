@@ -101,7 +101,7 @@ void Hitcore::initialise_string_to_accessor_maps() {
     get_dbl_map["local_weight"] = &Hitcore::local_weight;
     get_dbl_map["global_weight"] = &Hitcore::global_weight;
     get_dbl_map["weight"] = &Hitcore::total_weight;
-}
+} 
 
 void Hitcore::initialise_string_to_mutator_maps() {
     if (global_weight_map_ == NULL)
