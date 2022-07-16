@@ -302,7 +302,7 @@ class Bunch:
           except(EOFError):
               break
           except(BadEventError):
-              pass
+              continue
           if (not test_function) or test_function(hit):
               bunch.append(hit)
         filehandle.close()
@@ -434,8 +434,8 @@ class Bunch:
       try:
         line = open_file.readline()
         while( len(line) > 0 ):
-          if(string.find(line, 'cm cm cm')>-1 and line[0] == '#') :   Hit.set_g4bl_unit('cm')
-          elif(string.find(line, 'mm mm mm')>-1 and line[0] == '#') : Hit.set_g4bl_unit('mm')
+          if('cm cm cm' in line and line[0] == '#') :   Hit.set_g4bl_unit('cm')
+          elif('mm mm mm' in line and line[0] == '#') : Hit.set_g4bl_unit('mm')
           elif(line[0] == '#' or line[0] == '\n'): pass
           else: filehandle.write(line)
           line = open_file.readline()
@@ -1810,6 +1810,7 @@ class Bunch:
     if not x_axis_units == '': x_axis_string += " ["+x_axis_units+"] "
     if not y_axis_units == '': y_axis_string += " ["+y_axis_units+"] "
     graph = Common.make_matplot_graph(x_points, x_axis_string, y_points, y_axis_string)
+    return graph
   matplot_graph = staticmethod(matplot_graph)
 
 

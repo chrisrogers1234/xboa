@@ -202,7 +202,7 @@ def wait_for_matplot(block=False):
     xboa.common.config.has_matplot()
     matplotlib.pyplot.show(block)
 
-def get_figure_index(fig_index):
+def get_figure_index(fig_index = None):
     """Get a unique figure index or return fig_index if != None"""
     global FIGURE_INDEX
     if fig_index != None:

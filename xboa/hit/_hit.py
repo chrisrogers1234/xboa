@@ -420,12 +420,12 @@ class Hit(object):
         item["spill_number"] = spill_number
         print(json.dumps(item), file=filehandle)
       return
-    comptor = (Hit.__station_cmp)
-    list_of_hits.sort(comptor)
+    sort_key = lambda hit: hit["station"]
+    list_of_hits = sorted(list_of_hits, key=sort_key)
     old_hit = None
     current_hits = []
     for hit_in in list_of_hits:
-      if old_hit == None or comptor(hit_in, old_hit) == 0:
+      if old_hit == None or sort_key(hit_in) == sort_key(old_hit):
         current_hits.append(hit_in)
       else:
         for hit_out in current_hits:

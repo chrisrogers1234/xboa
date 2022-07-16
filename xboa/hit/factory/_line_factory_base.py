@@ -45,7 +45,7 @@ class LineFactoryBase(HitFactoryBase):
         Read a line and parse according to some pre-defined format
         """
         try:
-            line = file_handle.next()
+            line = next(file_handle)
         except StopIteration:
             raise EOFError("End of file reached")
         words = line.split()

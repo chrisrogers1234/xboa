@@ -42,6 +42,7 @@ try:
     import ROOT
 except ImportError:
     pass
+import xboa.common.matplotlib_wrapper as matplotlib_wrapper
 try:
     import matplotlib
     import matplotlib.pyplot as pyplot
@@ -134,8 +135,6 @@ _graph_persistent       = []
 _legend_persistent      = []
 _function_persistent      = []
 
-## pyplot globals
-_figure_index = 1
 
 def substitute(file_name_in, file_name_out, switch_dict):
   """
@@ -534,9 +533,8 @@ def make_matplot_histogram(x_float_list, x_axis_string, n_x_bins, y_float_list=[
   """
   config.has_matplot()
   config.has_numpy()
-  global _figure_index
-  pyplot.figure(_figure_index)
-  _figure_index += 1
+  figure_index = matplotlib_wrapper.get_figure_index()
+  pyplot.figure(figure_index)
   if(len(x_float_list) == 0):
     raise IndexError('Attempt to draw histogram with no x-points')
   if not len(y_float_list) == len(x_float_list):
@@ -624,9 +622,8 @@ def make_matplot_graph(x_float_list, x_axis_string, y_float_list, y_axis_string,
   After building the graph, use matplotlib.pyplot.show() to show something on the screen
   """
   config.has_matplot()
-  global _figure_index
-  pyplot.figure(_figure_index)
-  _figure_index += 1
+  figure_index = matplotlib_wrapper.get_figure_index()
+  pyplot.figure(figure_index)
   if(len(x_float_list) == 0 or len(x_float_list) != len(y_float_list)):
     raise IndexError('Attempt to draw graph with no x-points, or different number of x to y points')
   multilist = [x_float_list, y_float_list]
@@ -639,6 +636,7 @@ def make_matplot_graph(x_float_list, x_axis_string, y_float_list, y_axis_string,
   pyplot.xlim  (x_min_max[0], x_min_max[1])
   pyplot.ylim  (y_min_max[0], y_min_max[1])
   matplotlib.pyplot.draw()
+  return figure_index
 
 def make_root_multigraph(name_string, x_float_list_of_lists, x_axis_string, y_float_list_of_lists, y_axis_string):
   """
@@ -685,9 +683,8 @@ def make_matplot_multigraph(x_float_list_of_lists, x_axis_string, y_float_list_o
   E.g. common.make_matplot_multigraph('example', [[1.,2.,3.,4.], [1.,4.,9.,16.]], 'x', [[1.,2.,3.,4.],[1.,2.,3.,4.]], 'f(x)') will make a graph of f = x and  f = x^0.5
   """
   config.has_matplot()
-  global _figure_index
-  pyplot.figure(_figure_index)
-  _figure_index += 1
+  figure_index = matplotlib_wrapper.get_figure_index()
+  pyplot.figure(figure_index)
   total_x_list  = []
   total_y_list  = []
   for a_list in x_float_list_of_lists:  total_x_list += a_list
@@ -717,9 +714,8 @@ def make_matplot_scatter(x_float_list, x_axis_string, y_float_list, y_axis_strin
   After building the graph, use matplotlib.pyplot.show() to show something on the screen
   """
   config.has_matplot()
-  global _figure_index
-  pyplot.figure(_figure_index)
-  _figure_index += 1
+  figure_index = matplotlib_wrapper.get_figure_index()
+  pyplot.figure(figure_index)
   if(len(x_float_list) == 0):
     raise IndexError('Attempt to draw histogram with no x-points')
   hist = pyplot.scatter(x_float_list, y_float_list, s=1)
@@ -872,8 +868,7 @@ def make_shell(n_per_dimension, ellipse, mean = None):
   config.has_numpy()
   n_dimensions = numpy.shape(ellipse)[0]
   grid         = make_grid(n_dimensions, n_per_dimension)
-  print("GRID\n", grid)
-  if mean.any() == None:
+  if mean is None:
       mean = numpy.zeros((n_dimensions,))
   shell        = []
   ellipse_inv  = numpy.linalg.inv(ellipse)
@@ -896,10 +891,9 @@ def normalise_vector(vector, matrix_inverse):
   """
   config.has_numpy()
   scale  = 1./(vector * matrix_inverse * vector.transpose())[0,0]**0.5
-  print(vector, scale, end=' ')
-  if scale != scale: raise ValueError #isnan and isinf not available in 2.5
+  if scale != scale:
+      raise ValueError #isnan and isinf not available in 2.5
   vector = vector*scale
-  print(vector, vector * matrix_inverse * vector.transpose())
   return vector
 
 def __function_with_queue(args):
