@@ -234,7 +234,7 @@ bool Bunchcore::cut_double(const std::string cut_variable,
                     hc->set_local_weight(0.);
                 }
             }
-        } catch (std::logic_error err) {
+        } catch (std::logic_error& err) {
             return false;
         }
     }

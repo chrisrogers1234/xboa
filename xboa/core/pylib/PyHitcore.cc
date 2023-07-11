@@ -224,7 +224,7 @@ static PyTypeObject PyHitcoreType = {
 
 PyObject *_alloc(PyTypeObject *type, Py_ssize_t nitems) {
     PyHitcore* hc = new PyHitcore();
-    Py_REFCNT(hc) = 1;
+    Py_SET_REFCNT(hc, 1);
     Py_TYPE(hc) = type;
     hc->hitcore_ = SmartPointer<Hitcore>(NULL);
     return reinterpret_cast<PyObject*>(hc);
