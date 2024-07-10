@@ -15,10 +15,8 @@ To unpack, do:
 where <version> is the version number of this distribution. Then move into the <unpack_directory> by doing
   cd xboa-<version>
 To build, do:
-  python setup.py build
-To install, do:
-  python setup.py install
-You may need admin privileges to install
+  pip install .
+You may need admin privileges to install, depending on your system.
 
 ====================
 ||| RUNNING      |||
