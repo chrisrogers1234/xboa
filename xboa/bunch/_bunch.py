@@ -122,11 +122,13 @@ class Bunch:
   def __delitem__(self, key):
     """Called by remove method, deletes the key^th hit in the bunch"""
     self.__hits.__delitem__(key)
+    self.__bunchcore.__delitem__(key)
 
   def __del__(self):
     """Called by del"""
     for hit in self.__hits:
         del(hit)
+    self.__bunchcore = Bunchcore()
 
   def __eq__(self, target, float_tolerance=Common.float_tolerance):
     """Return true if all hits in self are the same as all hits in target, and set_covariance_matrix data are the same"""
@@ -203,14 +205,33 @@ class Bunch:
     bunch = Bunch.new_from_read_builtin(file_type_string,
                                         file_name,
                                         test_function)
+    return bunch.split(indexing_variable)
+
+  def split(self, indexing_variable):
+    """
+    Split a bunch into a number of sub-bunches according to an "indexing variable"
+
+    Split a bunch into a number of sub-bunches, so that each sub-bunch has the
+    same value of an "indexing variable"
+
+    - indexing_variable: string variable name
+
+    Returns a dict, whose keys are the value of indexing variable and whose values
+    are the sub-bunch corresponding to that value.
+
+    e.g. bunch_dict = bunch.split("station") will return a dict like
+    { 1:bunch_1, 4:bunch_4, 5:bunch_5} where bunch_1 has hits from station 1,
+    bunch_4 has hits from station 4 and bunch_5 has hits from station 5
+    """
     bunch_dict = {}
-    for hit in bunch:
+    for hit in self.__hits:
         if not hit.check():
             pass
         if not int(hit.get(indexing_variable)) in bunch_dict:
             bunch_dict[ int(hit.get(indexing_variable)) ] = Bunch()
         bunch_dict[ int(hit.get(indexing_variable)) ].append(hit)
     return bunch_dict
+
 
   @classmethod
   def new_list_from_read_builtin(cls, file_type_string, file_name, sort_variable = 'station', test_function = None):
@@ -595,6 +616,10 @@ class Bunch:
         if not comparator(hit_value_list[i], cut_value): 
           new_hits.append(self.__hits[i])
       self.__hits = new_hits
+      self.__bunchcore = Bunchcore()
+      for i, value in enumerate(new_hits):
+        self.__bunchcore.set_item(value._Hit__hitcore, i)
+
 
   def standard_deviation(self, variable, variable_mean={}):
     """
@@ -1228,7 +1253,7 @@ class Bunch:
         return Bunch.get_amplitude(self, hit, axis_list, covariance_matrix, mean_dict)
     return hit.get(variable_name)
 
-  def list_get_hit_variable(self, list_of_variables, list_of_units=[], covariance_matrix = None, mean_dict = {}):
+  def list_get_hit_variable(self, list_of_variables, list_of_units=[]):
     """
     Return a list of get_hit_variable results, one element for each hit in the bunch
 
@@ -1241,14 +1266,15 @@ class Bunch:
     for dummy in list_of_variables:
       values.append([])
     for i in range(len(list_of_variables)):
+      covariance_matrix = None
+      mean_dict = None
       var = list_of_variables[i]
       if type(var) is str:
         if(var.find('amplitude') > -1):
-          axis_list         = Bunch.convert_string_to_axis_list(var[10:len(var)])
-          if covariance_matrix == None:
-            covariance_matrix = self.covariance_matrix( Bunch.axis_list_to_covariance_list(axis_list) )
-          if mean_dict == {}:
-            mean_dict = self.mean(Bunch.axis_list_to_covariance_list(axis_list))
+          axis_list = Bunch.convert_string_to_axis_list(var[10:len(var)])
+          covariance_list = Bunch.axis_list_to_covariance_list(axis_list)
+          covariance_matrix = self.covariance_matrix(covariance_list)
+          mean_dict = self.mean(covariance_list)
       for hit in self.__hits:
         values[i].append( self.get_hit_variable(hit, var, covariance_matrix, mean_dict) )
         if not list_of_units == []: 
@@ -1746,7 +1772,7 @@ class Bunch:
     sort = True
     if comparator != None:
       sort = False
-    Common.make_matplot_histogram( x_points, x_name, int(n_bins), y_points, y_name, int(n_bins), weight_list=weights)
+    figure = Common.make_matplot_histogram( x_points, x_name, int(n_bins), y_points, y_name, int(n_bins), weight_list=weights)
 
   def matplot_scatter_graph(self, x_axis_string, y_axis_string, x_axis_units='', y_axis_units='', include_weightless=True):
     """
