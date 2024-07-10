@@ -151,6 +151,26 @@ PyObject* set_item(PyObject* self, PyObject *args, PyObject *kwds) {
     Py_RETURN_NONE;
 }
 
+std::string del_item_docstring = "Pass\n";
+
+PyObject* del_item(PyObject* self, PyObject *args, PyObject *kwds) {
+    Bunchcore* bc = reinterpret_cast<PyBunchcore*>(self)->bunchcore_;
+    if (bc == NULL) { // not possible! (Haha)
+        PyErr_SetString(PyExc_TypeError,
+                        "Failed to interpret self as a Bunchcore");
+        return NULL;
+    }
+    // Extract index and check bounds
+    static char *kwlist[] = {const_cast<char*>("index"), NULL};
+    PyObject* py_index;
+    if (PyArg_ParseTupleAndKeywords(args, kwds, "O|", kwlist, &py_index) == 0)
+        return NULL;
+    size_t index;
+    if (!PyCppIndexConverter(bc->length()).convert(py_index, &index))
+        return NULL;
+    bc->del_item(index);
+    Py_RETURN_NONE;
+}
 std::string length_docstring = 
     std::string("Return the length of the Bunchcore.\n");
 
@@ -428,6 +448,7 @@ static PyMemberDef Bunchcore_members[] = {
 static PyMethodDef Bunchcore_methods[] = {
     {"set_item",  (PyCFunction)set_item, METH_VARARGS|METH_KEYWORDS, set_item_docstring.c_str()},
     {"get_item",  (PyCFunction)get_item, METH_VARARGS|METH_KEYWORDS, get_item_docstring.c_str()},
+    {"del_item",  (PyCFunction)del_item, METH_VARARGS|METH_KEYWORDS, del_item_docstring.c_str()},
     {"length",    (PyCFunction)length,   METH_VARARGS|METH_KEYWORDS, length_docstring.c_str()},
     {"moment",    (PyCFunction)moment, METH_VARARGS|METH_KEYWORDS, moment_docstring.c_str()},
     {"covariance_matrix", (PyCFunction)covariance_matrix, METH_VARARGS|METH_KEYWORDS, covariance_matrix_docstring.c_str()},

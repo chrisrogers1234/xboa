@@ -60,6 +60,11 @@ public:
      */
     void set_item(size_t i, ::xboa::core::SmartPointer<Hitcore> hit);
 
+    /** Delete the ith element
+     *  - i index of the element to return. i must be an element.
+     */
+    bool del_item(size_t i);
+
     /** Get the ith element
      *  - i index of the element to return. If element i does not exist, returns
      *      NULL
