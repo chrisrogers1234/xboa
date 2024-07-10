@@ -1,3 +1,5 @@
 build
 __pycache__
 xboa/test/test.log
+MANIFEST
+xboa.egg-info
