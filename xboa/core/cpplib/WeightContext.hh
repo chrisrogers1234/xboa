@@ -91,6 +91,9 @@ class WeightContext {
     static WeightContext* getContext(std::string name);
     static void setContext(std::string name, WeightContext* context);
 
+    static WeightContext* getCurrentContext();
+    static void setCurrentContext(WeightContext* context);
+
   private:
     std::map<HitId, double> globalWeightsContext_;
     std::string name_;
@@ -98,7 +101,7 @@ class WeightContext {
     static std::map<std::string, WeightContext*> contexts_;
     static size_t uniqueId_;
     static std::string defaultName();
-
+    static WeightContext* currentContext;
 };
 
 class WeightContext::HitId  {

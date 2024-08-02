@@ -29,6 +29,8 @@
 namespace xboa {
 namespace core {
 
+typedef WeightContext::HitId HitId;
+
 /** Hitcore class provides the core "hit" object - i.e. object corresponding to
  *  a particle crossing an output plane or detector. Mostly just a container for
  *  kinematic data.
@@ -119,9 +121,6 @@ class Hitcore {
 
     /** Destructor does nothing */
     ~Hitcore() {}
-
-    /** Unique ID for Hitcores for global weights */
-    class HitId;
 
     /** Get double value referenced by key;
      *  - key: string name of the variable, chosen from get_dbl_map keys
@@ -394,30 +393,6 @@ class Hitcore {
     static std::map<std::string, set_dbl_function> set_dbl_map;
     static std::map<HitId, double> * global_weight_map_;
 };
-
-class Hitcore::HitId  {
-  public:
-    HitId(int spill, int event, int particle)
-      : spill_(spill), event_(event), particle_(particle) {
-    }
-
-    inline bool operator<(const HitId&) const;
-    int spill_;
-    int event_;
-    int particle_;
-};
-
-bool Hitcore::HitId::operator<(const Hitcore::HitId& rhs) const {
-    if (spill_ == rhs.spill_) {
-        if (event_ == rhs.event_) {
-            return particle_ < rhs.particle_;
-        } else {
-            return event_ < rhs.event_;
-        }
-    } else {
-        return spill_ < rhs.spill_;
-    }
-}
 
 bool Hitcore::get_int(std::string variable, int* value) {
     std::map<std::string, get_int_function>::iterator it =
