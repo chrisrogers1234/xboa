@@ -62,7 +62,7 @@ PyObject* get(PyObject* self, PyObject *args, PyObject *kwds) {
 
     int value_int = 0;
     if (hc->hitcore_->get_int(variable_name, &value_int)) {
-        return Py_BuildValue("i", value_int); // success, return a double
+        return Py_BuildValue("i", value_int); // success, return a int
     }
     PyErr_SetString(PyExc_KeyError, "Did not recognise variable in Hitcore.get");
     return NULL;

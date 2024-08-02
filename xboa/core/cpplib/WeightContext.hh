@@ -18,9 +18,6 @@
 #include <map>
 #include <stdexcept>
 
-#include "cpplib/Hitcore.hh"
-
-
 #ifndef xboa_core_cpplib_PyWeightContext_hh
 #define xboa_core_cpplib_PyWeightContext_hh
 
@@ -28,9 +25,7 @@
 namespace xboa {
 namespace core {
 
-typedef Hitcore::HitId HitId;
-
-/** A weight context is a mapping from a HitCore::HitId to a statistical weight
+/** A weight context is a mapping from a WeightContext::HitId to a statistical weight
  *
  *  WeightContext is a wrapper to a map from HitId to double weight; methods are
  *  provided to combine weightcontexts using arithmetic operators
@@ -40,16 +35,23 @@ typedef Hitcore::HitId HitId;
  */
 class WeightContext {
   public:
+
+    class HitId;
+
     /** Add the weight context to the contexts mapping */
     WeightContext();
     ~WeightContext();
 
-    WeightContext* Clone();
+    inline WeightContext* clone();
 
     WeightContext(const WeightContext& rhs);
 
-    WeightContext& operator=(const WeightContext& rhs);
+    /** Set weights to weights from rhs. Does not change the name, as that would break the name unique-ness rule.
+     */
+    inline WeightContext& operator=(const WeightContext& rhs);
 
+    /** Get the weight for a hit id.
+     */
     inline double getWeight(HitId id) const;
 
     /** Add hitIds in rhs to *this::globalWeightsContext_ and set the new
@@ -82,9 +84,9 @@ class WeightContext {
     inline void setDefaultWeight(const double& weight);
 
     /** Set name. Update contexts_ */
-    void setName(std::string name);
+    inline void setName(std::string name);
     /** Get name. */
-    std::string getName() const;
+    inline std::string getName() const;
 
     static WeightContext* getContext(std::string name);
     static void setContext(std::string name, WeightContext* context);
@@ -98,6 +100,33 @@ class WeightContext {
     static std::string defaultName();
 
 };
+
+class WeightContext::HitId  {
+  public:
+    HitId(int spill, int event, int particle)
+      : spill_(spill), event_(event), particle_(particle) {
+    }
+
+    inline bool operator<(const HitId&) const;
+    int spill_;
+    int event_;
+    int particle_;
+};
+
+typedef WeightContext::HitId HitId;
+
+bool WeightContext::HitId::operator<(const WeightContext::HitId& rhs) const {
+    if (spill_ == rhs.spill_) {
+        if (event_ == rhs.event_) {
+            return particle_ < rhs.particle_;
+        } else {
+            return event_ < rhs.event_;
+        }
+    } else {
+        return spill_ < rhs.spill_;
+    }
+}
+
 
 }
 }

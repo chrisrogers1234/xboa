@@ -21,9 +21,6 @@
 
 #include <Python.h>
 
-#include "utils/SmartPointer.hh"
-#include "cpplib/Hitcore.hh"
-
 namespace xboa {
 namespace core {
 namespace PyWeightContext {

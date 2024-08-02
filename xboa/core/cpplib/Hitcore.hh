@@ -24,6 +24,8 @@
 #include <vector>
 #include <stdexcept>
 
+#include "cpplib/WeightContext.hh"
+
 namespace xboa {
 namespace core {
 

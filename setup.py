@@ -33,7 +33,7 @@ hitcore_mod = Extension(
     include_dirs = ['xboa/core'],
 )
 
-hitcore_mod = Extension(
+weight_context_mod = Extension(
     'xboa.core._weight_context',
     sources = [
         'xboa/core/pylib/PyWeightContext.cc',
@@ -76,7 +76,7 @@ setup(name='xboa',
                 'xboa.examples',
                 'xboa.test',
       ],
-      ext_modules = [hitcore_mod, bunchcore_mod],
+      ext_modules = [hitcore_mod, bunchcore_mod, weight_context_mod],
       scripts=['xboa/examples/XBOA9f',
                'xboa/tracking/tracking_process/xboa_tracking_process.py'],
       data_files=dfiles,

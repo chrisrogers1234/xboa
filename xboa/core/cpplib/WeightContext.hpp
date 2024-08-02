@@ -18,23 +18,9 @@
 namespace xboa {
 namespace core {
 
-WeightContext::WeightContext() {
-    name_ = defaultName();
-}
-
-WeightContext::~WeightContext() {
-    contexts_.erase(name_);
-}
-
-WeightContext* WeightContext::Clone() {
+WeightContext* WeightContext::clone() {
     WeightContext* rhs = new WeightContext(*this);
     return rhs;
-}
-
-WeightContext::WeightContext(const WeightContext& rhs) :
-                            globalWeightsContext_(rhs.globalWeightsContext_),
-                            name_(rhs.name_),
-                            defaultWeight_(rhs.defaultWeight_) {
 }
 
 WeightContext& WeightContext::operator=(const WeightContext& rhs) {
@@ -47,7 +33,7 @@ WeightContext& WeightContext::operator=(const WeightContext& rhs) {
     return *this;
 }
 
-double WeightContext::getWeight(Hitcore::HitId id) const {
+double WeightContext::getWeight(HitId id) const {
     std::map<HitId, double>::const_iterator it = globalWeightsContext_.find(id);
     if (it == globalWeightsContext_.end()) {
         return defaultWeight_;
@@ -140,6 +126,11 @@ void WeightContext::setDefaultWeight(const double& weight) {
 }
 
 void WeightContext::setName(std::string name) {
+    if (contexts_.find(name) != contexts_.end()) {
+        throw std::runtime_error(
+            "Cannot rename WeightContext - another WeightContext already "
+            "exists with the same name and names must be unique.");
+    }
     name_ = name;
     contexts_.erase(name_);
     contexts_[name] = this;
