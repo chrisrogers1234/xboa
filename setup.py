@@ -33,6 +33,15 @@ hitcore_mod = Extension(
     include_dirs = ['xboa/core'],
 )
 
+hitcore_mod = Extension(
+    'xboa.core._weight_context',
+    sources = [
+        'xboa/core/pylib/PyWeightContext.cc',
+        'xboa/core/cpplib/WeightContext.cc',
+    ],
+    include_dirs = ['xboa/core'],
+)
+
 bunchcore_mod = Extension(
     'xboa.core._bunchcore',
     sources = [
