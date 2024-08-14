@@ -17,6 +17,7 @@
 
 #include <map>
 #include <stdexcept>
+#include "utils/SmartPointer.hh"
 
 #ifndef xboa_core_cpplib_PyWeightContext_hh
 #define xboa_core_cpplib_PyWeightContext_hh
@@ -26,17 +27,23 @@ namespace xboa {
 namespace core {
 
 /** A weight context is a mapping from a WeightContext::HitId to a statistical weight
+ *  The idea is to apply statistical weights to an entire track or set of hits. All
+ *  Hits that have the same Spill, Event Number and Particle Number are considered
+ *  to originate on the same track. Weight context supports applying a different
+ *  weighting for in different circumstances by applying a new "context".
  *
- *  WeightContext is a wrapper to a map from HitId to double weight; methods are
- *  provided to combine weightcontexts using arithmetic operators
- *
- *  Weight contexts are referenced via a string lookup table
+ *  Weight contexts can be combined arithmetically , for example multiplied together
+ *  or added.
  *
  */
 class WeightContext {
   public:
 
     class HitId;
+    class Add;
+    class Subtract;
+    class Multiply;
+    class Divide;
 
     /** Add the weight context to the contexts mapping */
     WeightContext();
@@ -52,7 +59,10 @@ class WeightContext {
 
     /** Get the weight for a hit id.
      */
-    inline double getWeight(HitId id) const;
+    inline double getWeight(const HitId& id) const;
+    /** Get the weight for a hit id.
+     */
+    inline void setWeight(const HitId& id, const double& weight);
 
     /** Add hitIds in rhs to *this::globalWeightsContext_ and set the new
      *  weights to the default. To be explicit, we don't set the weights from
@@ -83,25 +93,14 @@ class WeightContext {
     /** Set default weight */
     inline void setDefaultWeight(const double& weight);
 
-    /** Set name. Update contexts_ */
-    inline void setName(std::string name);
-    /** Get name. */
-    inline std::string getName() const;
-
-    static WeightContext* getContext(std::string name);
-    static void setContext(std::string name, WeightContext* context);
-
-    static WeightContext* getCurrentContext();
-    static void setCurrentContext(WeightContext* context);
+    static SmartPointer<WeightContext> getCurrentContext();
+    static void setCurrentContext(SmartPointer<WeightContext> context);
+    static void initialise();
 
   private:
     std::map<HitId, double> globalWeightsContext_;
-    std::string name_;
     double defaultWeight_ = 1.0;
-    static std::map<std::string, WeightContext*> contexts_;
-    static size_t uniqueId_;
-    static std::string defaultName();
-    static WeightContext* currentContext;
+    static SmartPointer<WeightContext> currentContext;
 };
 
 class WeightContext::HitId  {
@@ -114,6 +113,38 @@ class WeightContext::HitId  {
     int spill_;
     int event_;
     int particle_;
+};
+
+class WeightContext::Add  {
+  public:
+    Add() {}
+    inline WeightContext operate(const WeightContext& lhs, const WeightContext& rhs);
+    inline WeightContext operate(const WeightContext& lhs, const double& rhs);
+    inline WeightContext operate(const double& lhs, const WeightContext& rhs);
+};
+
+class WeightContext::Subtract  {
+  public:
+    Subtract() {}
+    inline WeightContext operate(const WeightContext& lhs, const WeightContext& rhs);
+    inline WeightContext operate(const WeightContext& lhs, const double& rhs);
+    inline WeightContext operate(const double& lhs, const WeightContext& rhs);
+};
+
+class WeightContext::Multiply  {
+  public:
+    Multiply() {}
+    inline WeightContext operate(const WeightContext& lhs, const WeightContext& rhs);
+    inline WeightContext operate(const WeightContext& lhs, const double& rhs);
+    inline WeightContext operate(const double& lhs, const WeightContext& rhs);
+};
+
+class WeightContext::Divide  {
+  public:
+    Divide() {}
+    inline WeightContext operate(const WeightContext& lhs, const WeightContext& rhs);
+    inline WeightContext operate(const WeightContext& lhs, const double& rhs);
+    inline WeightContext operate(const double& lhs, const WeightContext& rhs);
 };
 
 typedef WeightContext::HitId HitId;

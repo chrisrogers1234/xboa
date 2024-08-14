@@ -28,18 +28,22 @@ WeightContext& WeightContext::operator=(const WeightContext& rhs) {
         return *this;
     }
     globalWeightsContext_ = rhs.globalWeightsContext_;
-    name_ = rhs.name_;
     defaultWeight_ = rhs.defaultWeight_;
     return *this;
 }
 
-double WeightContext::getWeight(HitId id) const {
+double WeightContext::getWeight(const HitId& id) const {
     std::map<HitId, double>::const_iterator it = globalWeightsContext_.find(id);
     if (it == globalWeightsContext_.end()) {
         return defaultWeight_;
     }
     return it->second;
 }
+
+void WeightContext::setWeight(const HitId& id, const double& weight) {
+    globalWeightsContext_[id] = weight;
+}
+
 
 void WeightContext::adoptHits(const WeightContext& rhs) {
     std::map<HitId, double>::iterator hint = globalWeightsContext_.begin();
@@ -125,20 +129,78 @@ void WeightContext::setDefaultWeight(const double& weight) {
     defaultWeight_ = weight;
 }
 
-void WeightContext::setName(std::string name) {
-    if (contexts_.find(name) != contexts_.end()) {
-        throw std::runtime_error(
-            "Cannot rename WeightContext - another WeightContext already "
-            "exists with the same name and names must be unique.");
-    }
-    name_ = name;
-    contexts_.erase(name_);
-    contexts_[name] = this;
+WeightContext WeightContext::Add::operate(const WeightContext& lhs, const WeightContext& rhs) {
+    WeightContext wc1 = lhs;
+    wc1.add(rhs);
+    return wc1;
 }
 
-std::string WeightContext::getName() const {
-    return name_;
+WeightContext WeightContext::Add::operate(const WeightContext& lhs, const double& rhs) {
+    WeightContext wc1 = lhs;
+    wc1.add(rhs);
+    return wc1;
 }
+
+WeightContext WeightContext::Add::operate(const double& lhs, const WeightContext& rhs) {
+    WeightContext wc1 = rhs;
+    wc1.add(lhs);
+    return wc1;
+}
+
+
+WeightContext WeightContext::Multiply::operate(const WeightContext& lhs, const WeightContext& rhs) {
+    WeightContext wc1 = lhs;
+    wc1.multiply(rhs);
+    return wc1;
+}
+
+WeightContext WeightContext::Multiply::operate(const WeightContext& lhs, const double& rhs) {
+    WeightContext wc1 = lhs;
+    wc1.multiply(rhs);
+    return wc1;
+}
+
+WeightContext WeightContext::Multiply::operate(const double& lhs, const WeightContext& rhs) {
+    WeightContext wc1 = rhs;
+    wc1.multiply(lhs);
+    return wc1;
+}
+
+
+WeightContext WeightContext::Subtract::operate(const WeightContext& lhs, const WeightContext& rhs) {
+    WeightContext wc1 = lhs;
+    wc1.subtract(rhs);
+    return wc1;
+}
+
+WeightContext WeightContext::Subtract::operate(const WeightContext& lhs, const double& rhs) {
+    WeightContext wc1 = lhs;
+    wc1.subtract(rhs);
+    return wc1;
+}
+
+WeightContext WeightContext::Subtract::operate(const double& lhs, const WeightContext& rhs) {
+    throw(std::string("not implemented"));
+}
+
+
+WeightContext WeightContext::Divide::operate(const WeightContext& lhs, const WeightContext& rhs) {
+    WeightContext wc1 = lhs;
+    wc1.divide(rhs);
+    return wc1;
+}
+
+WeightContext WeightContext::Divide::operate(const WeightContext& lhs, const double& rhs) {
+    WeightContext wc1 = lhs;
+    wc1.divide(rhs);
+    return wc1;
+}
+
+WeightContext WeightContext::Divide::operate(const double& lhs, const WeightContext& rhs) {
+    throw(std::string("not implemented"));
+}
+
+
 
 }
 }

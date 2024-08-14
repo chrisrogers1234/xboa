@@ -27,6 +27,7 @@
 #include "utils/TypeConversions.hh"
 
 #include "cpplib/Hitcore.hh"
+#include "cpplib/WeightContext.hh"
 
 // Define tells PyHitcore to import in "xboa include" mode
 #define xboa_core_PyHitcore_cc
@@ -282,8 +283,8 @@ static PyMethodDef _keywdarg_methods[] = {
     {NULL,  NULL}   /* sentinel */
 };
 
-std::map<Hitcore::HitId, double>* hitcore_global_weights_context =
-                                         new std::map<Hitcore::HitId, double>();
+std::map<WeightContext::HitId, double>* hitcore_global_weights_context =
+                                         new std::map<WeightContext::HitId, double>();
 
 static void update_set_get_maps() {
     xboa::core::Hitcore::set_global_weights_context(hitcore_global_weights_context);

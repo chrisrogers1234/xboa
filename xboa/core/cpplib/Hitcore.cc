@@ -26,11 +26,11 @@ std::map<std::string, Hitcore::get_dbl_function> Hitcore::get_dbl_map;
 std::map<std::string, Hitcore::set_int_function> Hitcore::set_int_map;
 std::map<std::string, Hitcore::set_dbl_function> Hitcore::set_dbl_map;
 
-std::map<Hitcore::HitId, double> * Hitcore::global_weight_map_ =
-                                        new std::map<Hitcore::HitId, double>();
+std::map<WeightContext::HitId, double> * Hitcore::global_weight_map_ =
+                                        new std::map<WeightContext::HitId, double>();
 
 void Hitcore::print_global_weights(std::ostream& out) {
-    std::map<Hitcore::HitId, double>::const_iterator it;
+    std::map<WeightContext::HitId, double>::const_iterator it;
     for (it = global_weight_map_->begin(); it != global_weight_map_->end(); ++it)
         out << "spill " << it->first.spill_ << " event " << it->first.event_
             << " particle " << it->first.particle_ << " weight: " << it->second
@@ -41,11 +41,11 @@ void Hitcore::clear_global_weights() {
     Hitcore::global_weight_map_->clear();
 }
 
-void Hitcore::set_global_weights_context(std::map<HitId, double>* context) {
+void Hitcore::set_global_weights_context(std::map<WeightContext::HitId, double>* context) {
     global_weight_map_ = context;
 }
 
-std::map<Hitcore::HitId, double>* Hitcore::global_weights_context() {
+std::map<WeightContext::HitId, double>* Hitcore::global_weights_context() {
     return global_weight_map_;
 }
 

@@ -225,8 +225,8 @@ int xboa::core::PyHitcore::import_PyHitcore() {
                                                "C_API_GLOBAL_WEIGHTS_CONTEXT");
     void* gwc_void = PyCapsule_GetPointer(gwc_c_api, NULL);
 
-    std::map<Hitcore::HitId, double>* gwc =
-                reinterpret_cast< std::map<Hitcore::HitId, double>*> (gwc_void);
+    std::map<WeightContext::HitId, double>* gwc =
+                reinterpret_cast< std::map<WeightContext::HitId, double>*> (gwc_void);
     Hitcore::set_global_weights_context(gwc);
 
     // setup smartpointer context (see hitcore document)

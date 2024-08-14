@@ -115,7 +115,11 @@ SmartPointer<Ptr>::~SmartPointer() {
 
 template <typename Ptr>
 void SmartPointer<Ptr>::set(Ptr* pointer) {
-
+    if (pointer == ptr_) {
+        // if pointer == ptr_ and ref_count is 1, ptr_ would be deleted during
+        // decref
+        return;
+    }
     decref(ptr_);
     ptr_ = pointer;
     incref(pointer);
@@ -128,7 +132,10 @@ Ptr* SmartPointer<Ptr>::get() {
 
 template <typename Ptr>
 void SmartPointer<Ptr>::decref(Ptr* ptr_) {
-    if (ref_count_ == NULL)
+    if (ptr_ == nullptr) {
+        return; // ignore
+    }
+    if (ref_count_ == nullptr)
         throw std::runtime_error(
                         "Attempt to use SmartPointer when no context was set");
     if (ref_count_->find(ptr_) == ref_count_->end())
@@ -149,11 +156,13 @@ std::size_t SmartPointer<Ptr>::ref_count(Ptr* ptr) {
 
 
 template <typename Ptr>
-void SmartPointer<Ptr>::incref(Ptr* ptr_) {
-    if (ptr_ == NULL) {
+void SmartPointer<Ptr>::incref(Ptr* ptr) {
+    if (ptr == NULL) {
         return;
     }
-    ++(*ref_count_)[ptr_];
+    if (ref_count_->find(ptr) == ref_count_->end())
+        (*ref_count_)[ptr] = 0;
+    ++(*ref_count_)[ptr];
 }
 
 template <typename Ptr>
