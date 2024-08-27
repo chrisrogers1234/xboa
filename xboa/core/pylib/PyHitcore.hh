@@ -220,15 +220,6 @@ int xboa::core::PyHitcore::import_PyHitcore() {
     void* check_void =PyCapsule_GetPointer(check_c_api, NULL);
     check = reinterpret_cast<bool (*)(PyObject*)>(check_void);
 
-    // setup global weights context (see hitcore document)
-    PyObject* gwc_c_api = PyDict_GetItemString(hc_dict,
-                                               "C_API_GLOBAL_WEIGHTS_CONTEXT");
-    void* gwc_void = PyCapsule_GetPointer(gwc_c_api, NULL);
-
-    std::map<WeightContext::HitId, double>* gwc =
-                reinterpret_cast< std::map<WeightContext::HitId, double>*> (gwc_void);
-    Hitcore::set_global_weights_context(gwc);
-
     // setup smartpointer context (see hitcore document)
     PyObject* spc_c_api = PyDict_GetItemString(hc_dict,
                                                "C_API_SMARTPOINTER_CONTEXT");

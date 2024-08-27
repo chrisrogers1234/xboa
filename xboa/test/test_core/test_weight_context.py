@@ -142,6 +142,5 @@ class WeightContextTest(unittest.TestCase):
         except Exception:
             pass
 
-
 if __name__ == "__main__":
     unittest.main()

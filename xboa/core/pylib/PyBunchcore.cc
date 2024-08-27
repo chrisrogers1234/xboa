@@ -28,10 +28,10 @@
 #undef  xboa_core_pylib_PyBunchcore_cc
 
 #include "pylib/PyHitcore.hh"
+#include "pylib/PyWeightContext.hh"
 
 namespace xboa {
 namespace core {
-
 namespace PyBunchcore {
 
 PyObject *alloc(PyTypeObject *type, Py_ssize_t nitems) {
@@ -525,6 +525,19 @@ static struct PyModuleDef bunchcoredef = {
     NULL,                /* m_free */
 };
 
+// This is a direct copy from pyHitcore. The aim is to pull the hitcore from
+// weightcontext.
+void setWeightContext() {
+    PyObject* wc_module = PyImport_ImportModule("xboa.core._weight_context");
+    PyObject* wc_class = PyObject_GetAttrString(wc_module, "WeightContext");
+    PyObject* get_context = PyObject_GetAttrString(wc_class, "get_current_context");
+    PyObject* empty_tuple = PyTuple_New(0);
+    PyObject* pyobj_wc = PyObject_CallObject(get_context, empty_tuple);
+    PyWeightContext::PyWeightContext* pywc = reinterpret_cast<PyWeightContext::PyWeightContext*>(pyobj_wc);
+    Hitcore::weightContext = pywc->cppcontext_;
+}
+
+
 PyMODINIT_FUNC PyInit__bunchcore(void) {
     PyBunchcoreType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&PyBunchcoreType) < 0) {
@@ -542,6 +555,7 @@ PyMODINIT_FUNC PyInit__bunchcore(void) {
     PyObject* py_obj_hc =  xboa::core::PyHitcore::create_empty_hitcore();
     PyHitcore::PyHitcore* hc = reinterpret_cast<PyHitcore::PyHitcore*>(py_obj_hc); 
     SmartPointer<Hitcore>::set_context(hc->hitcore_.get_context());
+
     // C API
     PyObject* bc_dict = PyModule_GetDict(module);
     PyObject* ceb_c_api = PyCapsule_New(reinterpret_cast<void*>
@@ -553,7 +567,7 @@ PyMODINIT_FUNC PyInit__bunchcore(void) {
     PyDict_SetItemString(bc_dict, "C_API_CREATE_EMPTY_BUNCHCORE", ceb_c_api);
     PyDict_SetItemString(bc_dict, "C_API_GET_BUNCHCORE", gbc_c_api);
     PyDict_SetItemString(bc_dict, "C_API_SET_BUNCHCORE", sbc_c_api);
-
+    setWeightContext();
     return module;
 }
 

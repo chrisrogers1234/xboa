@@ -25,28 +25,11 @@ std::map<std::string, Hitcore::get_int_function> Hitcore::get_int_map;
 std::map<std::string, Hitcore::get_dbl_function> Hitcore::get_dbl_map;
 std::map<std::string, Hitcore::set_int_function> Hitcore::set_int_map;
 std::map<std::string, Hitcore::set_dbl_function> Hitcore::set_dbl_map;
+SmartPointer<WeightContext> Hitcore::weightContext;
 
-std::map<WeightContext::HitId, double> * Hitcore::global_weight_map_ =
-                                        new std::map<WeightContext::HitId, double>();
-
-void Hitcore::print_global_weights(std::ostream& out) {
-    std::map<WeightContext::HitId, double>::const_iterator it;
-    for (it = global_weight_map_->begin(); it != global_weight_map_->end(); ++it)
-        out << "spill " << it->first.spill_ << " event " << it->first.event_
-            << " particle " << it->first.particle_ << " weight: " << it->second
-            << std::endl;
-}
 
 void Hitcore::clear_global_weights() {
-    Hitcore::global_weight_map_->clear();
-}
-
-void Hitcore::set_global_weights_context(std::map<WeightContext::HitId, double>* context) {
-    global_weight_map_ = context;
-}
-
-std::map<WeightContext::HitId, double>* Hitcore::global_weights_context() {
-    return global_weight_map_;
+    weightContext->clearWeights();
 }
 
 Hitcore::Hitcore()
@@ -59,8 +42,6 @@ Hitcore::Hitcore()
 }
 
 void Hitcore::initialise_string_to_accessor_maps() {
-    if (global_weight_map_ == NULL)
-        throw std::runtime_error("Didn't initialise global_weight_map_");
     get_int_map["spill"] = &Hitcore::spill;
     get_int_map["event_number"] = &Hitcore::event;
     get_int_map["eventNumber"] = &Hitcore::event;
@@ -102,10 +83,8 @@ void Hitcore::initialise_string_to_accessor_maps() {
     get_dbl_map["global_weight"] = &Hitcore::global_weight;
     get_dbl_map["weight"] = &Hitcore::total_weight;
 } 
-
+ 
 void Hitcore::initialise_string_to_mutator_maps() {
-    if (global_weight_map_ == NULL)
-        throw std::runtime_error("Didn't initialise global_weight_map_");
     set_int_map["spill"] = &Hitcore::set_spill;
     set_int_map["event_number"] = &Hitcore::set_event;
     set_int_map["eventNumber"] = &Hitcore::set_event;

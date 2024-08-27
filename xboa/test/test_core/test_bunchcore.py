@@ -5,9 +5,9 @@ import unittest
 
 from xboa.core import Hitcore
 from xboa.core import Bunchcore
+from xboa.core import Bunchcore
 
 class BunchcoreTestCase(unittest.TestCase):
-
     def setUp(self):
         self.bunchcore = Bunchcore()
         self.events = range(5, 21)
@@ -21,7 +21,7 @@ class BunchcoreTestCase(unittest.TestCase):
             hitcore.set('event_number', i)
             self.bunchcore.set_item(hitcore, i)
 
-    def test_init(self):
+    def test_ainit(self):
         bc = Bunchcore(20)
         self.assertEqual(bc.length(), 0)
         self.assertEqual(sys.getrefcount(bc), 2)
@@ -30,7 +30,7 @@ class BunchcoreTestCase(unittest.TestCase):
         del bc2 
         self.assertEqual(sys.getrefcount(bc), 2)
 
-    def test_get_item(self):
+    def test_aget_item(self):
         mem_dump_in = Hitcore.dump_memory()
         bc1 = Bunchcore()
         hc1 = Hitcore()
@@ -69,7 +69,7 @@ class BunchcoreTestCase(unittest.TestCase):
         del(bc1)
         self.assertEqual(sys.getrefcount(hc1), 2)
 
-    def test_set_item(self):
+    def test_aset_item(self):
         bc1 = Bunchcore()
         hc1 = Hitcore()
         # should extend the bunchcore
@@ -271,7 +271,6 @@ class BunchcoreTestCase(unittest.TestCase):
         self._check_moment_tensor(variables, 2)
         variables = ["x", "y", "pz", "energy", "px"]
         self._check_moment_tensor(variables, 4)
-        
 
 if __name__ == "__main__":
   unittest.main()

@@ -29,8 +29,6 @@
 namespace xboa {
 namespace core {
 
-//typedef WeightContext::HitId HitId;
-
 /** Hitcore class provides the core "hit" object - i.e. object corresponding to
  *  a particle crossing an output plane or detector. Mostly just a container for
  *  kinematic data.
@@ -112,7 +110,6 @@ class Hitcore {
   public:
     typedef double (Hitcore::*get_dbl_function)();
     typedef void (Hitcore::*set_dbl_function)(double);
-
 
     /** Constructor initialises everything to zero, except local_weight which
      *  initialises to 1
@@ -338,11 +335,7 @@ class Hitcore {
     /** Print the global weights map */
     static void print_global_weights(std::ostream& out);
 
-    /** Set the global weights context */
-    static void set_global_weights_context(std::map<WeightContext::HitId, double>* context);
-
-    /** Get the global weights context */
-    static std::map<WeightContext::HitId, double>* global_weights_context();
+    static SmartPointer<WeightContext> weightContext;
 
   private:
     double x_;
@@ -391,7 +384,7 @@ class Hitcore {
 
     static std::map<std::string, get_dbl_function> get_dbl_map;
     static std::map<std::string, set_dbl_function> set_dbl_map;
-    static std::map<WeightContext::HitId, double> * global_weight_map_;
+
 };
 
 bool Hitcore::get_int(std::string variable, int* value) {
@@ -443,17 +436,14 @@ Hitcore::get_dbl_function Hitcore::get_double_function(std::string key) {
 }
 
 void Hitcore::set_global_weight(double global_weight) {
-    WeightContext::HitId hit(spill_, particle_, event_);
-    (*global_weight_map_)[hit] = global_weight;
+    WeightContext::HitId hitid(spill_, particle_, event_);
+    weightContext->setWeight(hitid, global_weight);
 }
 
 double Hitcore::global_weight() {
-    WeightContext::HitId hit(spill_, particle_, event_);
-    std::map<WeightContext::HitId, double>::const_iterator it = global_weight_map_->find(hit);
-    if (it == global_weight_map_->end()) {
-        return 1.;
-    }
-    return it->second;
+    WeightContext::HitId hitid(spill_, particle_, event_);
+    double wt = weightContext->getWeight(hitid);
+    return wt;
 }
 
 } // namespace core

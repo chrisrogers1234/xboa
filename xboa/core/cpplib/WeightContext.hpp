@@ -18,6 +18,19 @@
 namespace xboa {
 namespace core {
 
+WeightContext::WeightContext() {
+    //std::cerr << "Weight Context Ctor this " << this << " currentContext " << currentContext.get() << " " << &currentContext << std::endl;
+}
+
+WeightContext::~WeightContext() {
+    //std::cerr << "Weight Context Dtor this " << this << " currentContext " << currentContext.get() << " " << &currentContext << std::endl;
+}
+
+WeightContext::WeightContext(const WeightContext& rhs) :
+                            globalWeightsContext_(rhs.globalWeightsContext_),
+                            defaultWeight_(rhs.defaultWeight_) {
+}
+
 WeightContext* WeightContext::clone() {
     WeightContext* rhs = new WeightContext(*this);
     return rhs;
@@ -44,6 +57,10 @@ void WeightContext::setWeight(const HitId& id, const double& weight) {
     globalWeightsContext_[id] = weight;
 }
 
+void WeightContext::clearWeights() {
+    globalWeightsContext_.clear();
+
+}
 
 void WeightContext::adoptHits(const WeightContext& rhs) {
     std::map<HitId, double>::iterator hint = globalWeightsContext_.begin();

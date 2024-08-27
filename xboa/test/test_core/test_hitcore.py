@@ -12,13 +12,13 @@ class HitcoreTest(unittest.TestCase):
         self.assertEqual(sys.getrefcount(a), 2)
 
     def test_get_vars(self):
-        self.assertEqual(sorted(Hitcore.get_variables()),
-                         sorted(['x', 'y', 'z', 't', 'px', 'py',
-               'pz', 'energy', 'mass', 'local_weight', 'global_weight', 'weight',
+        ref_get_vars = ['x', 'y', 'z', 't', 'px', 'py',
+               'pz', 'energy', 'mass', 'local_weight', 'global_weight',
                'bx', 'by', 'bz', 'ex', 'ey', 'ez', 'sx', 'sy', 'sz', 'path_length',
                'proper_time', 'e_dep', 'charge', 'event_number', 'station', 'pid',
-               'status', 'spill', 'particle_number', 'eventNumber',
-               'particleNumber']))
+               'status', 'spill', 'particle_number']
+        self.assertEqual(sorted(Hitcore.get_variables()),
+                         sorted(ref_get_vars))
 
     def test_set_vars(self):
         self.assertEqual(sorted(Hitcore.set_variables()),

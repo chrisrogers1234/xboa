@@ -67,7 +67,6 @@ bool Bunchcore::get_moment(std::vector<std::string> axes,
 
     //extract moments
     *moment = 0.;
-    //std::cerr << "Bunch weight " << weight_sum << std::endl;
     for(size_t i = 0; i < hitcores_.size(); ++i) {
         Hitcore* hc = hitcores_[i].get();
         if (hc == NULL)
@@ -75,12 +74,9 @@ bool Bunchcore::get_moment(std::vector<std::string> axes,
         double my_moment = hc->total_weight()/weight_sum;
         for(size_t j = 0; j < axes.size(); ++j) {
             my_moment *= (*hc.*function_vector[j])() - mean_vector[j];
-            //std::cerr << i << " " << (*hc.*function_vector[j])() << " " << hc->total_weight() << " ";
         }
         *moment += my_moment;
-        //std::cerr << *moment << std::endl;
     }
-    //std::cerr << std::endl;
     return true;
 }
 
@@ -219,9 +215,7 @@ double Bunchcore::bunch_weight() {
         if (hc == NULL)
             continue;
         weight_sum += hc->total_weight();
-        //std::cerr << weight_sum << " ";
     }
-    //std::cerr << "\nbunch weight " << weight_sum << std::endl;
     return weight_sum;
 }
 

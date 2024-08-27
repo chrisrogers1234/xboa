@@ -20,10 +20,50 @@
 #define xboa_core_pylib_PyWeightContext_hh
 
 #include <Python.h>
+#include "utils/SmartPointer.hh"
 
 namespace xboa {
 namespace core {
+
+class WeightContext;
+
 namespace PyWeightContext {
+
+struct PyWeightContext {
+    PyObject_HEAD;
+    SmartPointer<WeightContext> cppcontext_;
+};
+
+namespace C_API {
+PyWeightContext* create_empty_weightcontext();
+bool is_PyWeightContext(PyObject* obj);
+}
+
+PyWeightContext* (*create_empty_weightcontext)() = NULL;
+bool (*is_PyWeightContext)(PyObject*) = NULL;
+
+int import_PyWeightContext() {
+    PyObject* wc_module = PyImport_ImportModule("xboa.core._weight_context");
+    if (wc_module == NULL) {
+        return 0;
+    }
+    PyObject *wc_dict  = PyModule_GetDict(wc_module);
+
+    // setup create_empty_hitcore function
+    PyObject* cewc_c_api = PyDict_GetItemString(wc_dict,
+                                               "C_API_CREATE_EMPTY_WEIGHTCONTEXT");
+    void* cewc_void = PyCapsule_GetPointer(cewc_c_api, NULL);
+    create_empty_weightcontext = reinterpret_cast<PyWeightContext* (*)()>(cewc_void);
+
+    PyObject* ispwc_c_api = PyDict_GetItemString(wc_dict,
+                                               "C_API_IS_PYWEIGHTCONTEXT");
+    void* ispwc_void = PyCapsule_GetPointer(ispwc_c_api, NULL);
+
+    is_PyWeightContext = reinterpret_cast<bool (*)(PyObject*)>(ispwc_void);
+
+    delete create_empty_weightcontext();
+    return 1;
+}
 
 }
 }

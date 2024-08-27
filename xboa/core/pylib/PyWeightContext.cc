@@ -27,32 +27,25 @@
 #include <stdio.h>
 
 #include "utils/TypeConversions.hh"
-#include "utils/SmartPointer.hh"
 
 #include "cpplib/WeightContext.hh"
-
 #include "pylib/PyWeightContext.hh"
+
 
 namespace xboa {
 namespace core {
 namespace PyWeightContext {
-
-struct PyWeightContext {
-    PyObject_HEAD;
-    SmartPointer<WeightContext> cppcontext_;
-};
 
 std::string get_default_weight_docstring =
 std::string("\n");
 
 typedef WeightContext::HitId HitId;
 
-PyWeightContext* newPyWC();
-bool is_PyWeightContext(PyObject* obj);
+PyWeightContext* pyCurrentContext = nullptr;
 
 PyObject* getDefaultWeight(PyObject* self, PyObject *args, PyObject *kwds) {
     // self was not initialised - something horrible happened
-    if (!is_PyWeightContext(self)) {
+    if (!C_API::is_PyWeightContext(self)) {
         PyErr_SetString(PyExc_TypeError, "Failed to parse self as a PyWeightContext");
         return NULL;
     }
@@ -63,7 +56,7 @@ PyObject* getDefaultWeight(PyObject* self, PyObject *args, PyObject *kwds) {
 
 PyObject* setDefaultWeight(PyObject* self, PyObject *args, PyObject *kwds) {
     // self was not initialised - something horrible happened
-    if (!is_PyWeightContext(self)) {
+    if (!C_API::is_PyWeightContext(self)) {
         PyErr_SetString(PyExc_TypeError, "Failed to parse self as a PyWeightContext");
         return NULL;
     }
@@ -79,7 +72,7 @@ PyObject* setDefaultWeight(PyObject* self, PyObject *args, PyObject *kwds) {
 
 PyObject* setWeight(PyObject* self, PyObject *args, PyObject *kwds) {
     // self was not initialised - something horrible happened
-    if (!is_PyWeightContext(self)) {
+    if (!C_API::is_PyWeightContext(self)) {
         PyErr_SetString(PyExc_TypeError, "Failed to parse self as a PyWeightContext");
         return NULL;
     }
@@ -106,7 +99,7 @@ PyObject* setWeight(PyObject* self, PyObject *args, PyObject *kwds) {
 
 PyObject* getWeight(PyObject* self, PyObject *args, PyObject *kwds) {
     // self was not initialised - something horrible happened
-    if (!is_PyWeightContext(self)) {
+    if (!C_API::is_PyWeightContext(self)) {
         PyErr_SetString(PyExc_TypeError, "Failed to parse self as a PyWeightContext");
         return NULL;
     }
@@ -138,32 +131,32 @@ PyObject* setCurrentContext(PyObject* cls, PyObject *args) {
     }
 
     // obj was wrong type - something horrible happened
-    if (!is_PyWeightContext(pyobj)) {
+    if (!C_API::is_PyWeightContext(pyobj)) {
         PyErr_SetString(PyExc_TypeError, "Failed to parse object as a PyWeightContext");
         return NULL;
     }
     PyWeightContext* pywc = reinterpret_cast<PyWeightContext*>(pyobj);
     SmartPointer<WeightContext> contextPtr = pywc->cppcontext_;
-    WeightContext::setCurrentContext(contextPtr);
+    pyCurrentContext->cppcontext_ = contextPtr;
     Py_RETURN_NONE; // success, return None
 }
 
 PyObject* resetAsCurrentContext(PyObject* self, PyObject* args) {
     // self was not initialised - something horrible happened
-    if (!is_PyWeightContext(self)) {
+    if (!C_API::is_PyWeightContext(self)) {
         PyErr_SetString(PyExc_TypeError, "Failed to parse self as a PyWeightContext");
         return NULL;
     }
     PyWeightContext* pywc = reinterpret_cast<PyWeightContext*>(self);
-    WeightContext* contextPtr = WeightContext::getCurrentContext().get();
+    WeightContext* contextPtr = pyCurrentContext->cppcontext_.get();
     pywc->cppcontext_.set(contextPtr);
     Py_INCREF(pywc);
     return reinterpret_cast<PyObject*>(pywc);
 }
 
 PyObject* getCurrentContext(PyObject* cls, PyObject* args) {
-    WeightContext* contextPtr = WeightContext::getCurrentContext().get();
-    PyWeightContext* pywc = newPyWC();
+    WeightContext* contextPtr = pyCurrentContext->cppcontext_.get();
+    PyWeightContext* pywc = C_API::create_empty_weightcontext();
     pywc->cppcontext_.set(contextPtr);
     return reinterpret_cast<PyObject*>(pywc);
 }
@@ -191,7 +184,7 @@ static PyMethodDef _methods[] = {
 };
 
 PyObject* richCompare(PyObject* self, PyObject* other, int op) {
-    if (!is_PyWeightContext(self) or !is_PyWeightContext(other)) {
+    if (!C_API::is_PyWeightContext(self) or !C_API::is_PyWeightContext(other)) {
         PyErr_SetString(PyExc_NotImplementedError, "Not able to compare these object types");
         return NULL;
     }
@@ -211,7 +204,7 @@ PyObject *_alloc(PyTypeObject *type, Py_ssize_t nitems) {
 
 int _init(PyObject* self, PyObject *args, PyObject *kwds) {
     // self was not initialised - something horrible happened
-    if (!is_PyWeightContext(self)) {
+    if (!C_API::is_PyWeightContext(self)) {
         PyErr_SetString(PyExc_TypeError, "Failed to parse self as a PyWeightContext");
         return -1;
     }
@@ -229,7 +222,7 @@ int parseArg(PyObject* o1, PyObject** f1, PyWeightContext** pywc1) {
     *pywc1 = reinterpret_cast<PyWeightContext*>(o1);
     if (*f1 == nullptr) {
         PyErr_Clear();
-        if (!is_PyWeightContext(o1)) {
+        if (!C_API::is_PyWeightContext(o1)) {
             PyErr_SetString(PyExc_NotImplementedError, "Not able to add these object types");
             return 0;
         }
@@ -279,7 +272,7 @@ PyObject *binary_operator(PyObject *o1, PyObject *o2) {
             }
         }
     }
-    PyWeightContext* pywc3 = newPyWC();
+    PyWeightContext* pywc3 = C_API::create_empty_weightcontext();
     pywc3->cppcontext_.set(new WeightContext(wc3));
     return (PyObject*)pywc3;
 }
@@ -342,21 +335,6 @@ static PyTypeObject PyWeightContextType = {
     0, /* tp_finalize */
 };
 
-PyWeightContext* newPyWC() {
-    PyWeightContext* pywc = new PyWeightContext();
-    pywc->cppcontext_ = SmartPointer<WeightContext>(new WeightContext());
-    Py_SET_REFCNT(pywc, 1);
-    Py_TYPE(pywc) = &PyWeightContextType;
-    return pywc;
-}
-
-bool is_PyWeightContext(PyObject* obj) {
-     if (PyObject_IsInstance(obj, (PyObject*)&PyWeightContextType)) {
-        return true;
-    }
-    return false;
-}
-
 static PyMethodDef _keywdarg_methods[] = {
     {NULL,  NULL}   /* sentinel */
 };
@@ -373,13 +351,28 @@ static struct PyModuleDef weight_context_def = {
     NULL,                /* m_free */
 };
 
+PyWeightContext* C_API::create_empty_weightcontext() {
+    PyWeightContext* pywc = new PyWeightContext();
+    pywc->cppcontext_ = SmartPointer<WeightContext>(new WeightContext());
+    Py_SET_REFCNT(pywc, 1);
+    Py_TYPE(pywc) = &PyWeightContextType;
+    return pywc;
+}
+
+bool C_API::is_PyWeightContext(PyObject* obj) {
+     if (PyObject_IsInstance(obj, (PyObject*)&PyWeightContextType)) {
+        return true;
+    }
+    return false;
+}
+
 /** NOTE this is the reference counting for the smart pointers */
 std::map<WeightContext*, std::size_t>* weightcontext_smartpointer_context = new std::map<WeightContext*, std::size_t>();
 
+WeightContext* defaultGlobalContext = new WeightContext();
+
 PyMODINIT_FUNC PyInit__weight_context(void) {
     SmartPointer<WeightContext>::set_context(weightcontext_smartpointer_context);
-    SmartPointer<WeightContext> weight(new WeightContext());
-    WeightContext::setCurrentContext(weight);
 
     PyWeightContextType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&PyWeightContextType) < 0) {
@@ -393,6 +386,18 @@ PyMODINIT_FUNC PyInit__weight_context(void) {
     PyTypeObject* pywc_type = &PyWeightContextType;
     Py_INCREF(pywc_type);
     PyModule_AddObject(module, "WeightContext", reinterpret_cast<PyObject*>(pywc_type));
+
+    // C API
+    PyObject* wc_dict = PyModule_GetDict(module);
+    PyObject* cewc_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (C_API::create_empty_weightcontext), NULL, NULL);
+    PyDict_SetItemString(wc_dict, "C_API_CREATE_EMPTY_WEIGHTCONTEXT", cewc_c_api);
+
+    PyObject* ispwc_c_api = PyCapsule_New(reinterpret_cast<void*>
+                                (C_API::is_PyWeightContext), NULL, NULL);
+    PyDict_SetItemString(wc_dict, "C_API_IS_PYWEIGHTCONTEXT", ispwc_c_api);
+
+    pyCurrentContext = C_API::create_empty_weightcontext();
 
     return module;
 }

@@ -19,8 +19,8 @@
 #include <stdexcept>
 #include "utils/SmartPointer.hh"
 
-#ifndef xboa_core_cpplib_PyWeightContext_hh
-#define xboa_core_cpplib_PyWeightContext_hh
+#ifndef xboa_core_cpplib_WeightContext_hh
+#define xboa_core_cpplib_WeightContext_hh
 
 
 namespace xboa {
@@ -46,12 +46,12 @@ class WeightContext {
     class Divide;
 
     /** Add the weight context to the contexts mapping */
-    WeightContext();
-    ~WeightContext();
+    inline WeightContext();
+    inline ~WeightContext();
 
     inline WeightContext* clone();
 
-    WeightContext(const WeightContext& rhs);
+    inline WeightContext(const WeightContext& rhs);
 
     /** Set weights to weights from rhs. Does not change the name, as that would break the name unique-ness rule.
      */
@@ -63,6 +63,9 @@ class WeightContext {
     /** Get the weight for a hit id.
      */
     inline void setWeight(const HitId& id, const double& weight);
+    /** Clear all weights.
+     */
+    inline void clearWeights();
 
     /** Add hitIds in rhs to *this::globalWeightsContext_ and set the new
      *  weights to the default. To be explicit, we don't set the weights from
@@ -93,14 +96,10 @@ class WeightContext {
     /** Set default weight */
     inline void setDefaultWeight(const double& weight);
 
-    static SmartPointer<WeightContext> getCurrentContext();
-    static void setCurrentContext(SmartPointer<WeightContext> context);
-    static void initialise();
-
   private:
     std::map<HitId, double> globalWeightsContext_;
     double defaultWeight_ = 1.0;
-    static SmartPointer<WeightContext> currentContext;
+    //static SmartPointer<WeightContext> currentContext;
 };
 
 class WeightContext::HitId  {

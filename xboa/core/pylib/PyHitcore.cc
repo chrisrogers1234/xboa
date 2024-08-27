@@ -27,7 +27,8 @@
 #include "utils/TypeConversions.hh"
 
 #include "cpplib/Hitcore.hh"
-#include "cpplib/WeightContext.hh"
+//#include "cpplib/WeightContext.hh"
+#include "pylib/PyWeightContext.hh"
 
 // Define tells PyHitcore to import in "xboa include" mode
 #define xboa_core_PyHitcore_cc
@@ -283,11 +284,10 @@ static PyMethodDef _keywdarg_methods[] = {
     {NULL,  NULL}   /* sentinel */
 };
 
-std::map<WeightContext::HitId, double>* hitcore_global_weights_context =
-                                         new std::map<WeightContext::HitId, double>();
+//std::map<WeightContext::HitId, double>* hitcore_global_weights_context =
+//                                         new std::map<WeightContext::HitId, double>();
 
 static void update_set_get_maps() {
-    xboa::core::Hitcore::set_global_weights_context(hitcore_global_weights_context);
     xboa::core::Hitcore::initialise_string_to_accessor_maps();
     xboa::core::Hitcore::initialise_string_to_mutator_maps();
 
@@ -318,6 +318,16 @@ static struct PyModuleDef hitcoredef = {
     NULL,                /* m_free */
 };
 
+void setWeightContext() {
+    PyObject* wc_module = PyImport_ImportModule("xboa.core._weight_context");
+    PyObject* wc_class = PyObject_GetAttrString(wc_module, "WeightContext");
+    PyObject* get_context = PyObject_GetAttrString(wc_class, "get_current_context");
+    PyObject* empty_tuple = PyTuple_New(0);
+    PyObject* pyobj_wc = PyObject_CallObject(get_context, empty_tuple);
+    PyWeightContext::PyWeightContext* pywc = reinterpret_cast<PyWeightContext::PyWeightContext*>(pyobj_wc);
+    Hitcore::weightContext = pywc->cppcontext_;
+}
+
 PyMODINIT_FUNC PyInit__hitcore(void) {
     SmartPointer<Hitcore>::set_context(hitcore_smartpointer_context);
     PyHitcoreType.tp_new = PyType_GenericNew;
@@ -341,17 +351,16 @@ PyMODINIT_FUNC PyInit__hitcore(void) {
                                 (C_API::set_hitcore), NULL, NULL);
     PyObject* check_c_api = PyCapsule_New(reinterpret_cast<void*>
                                 (C_API::check), NULL, NULL);
-    PyObject* gwc_c_api = PyCapsule_New(reinterpret_cast<void*>
-                                (hitcore_global_weights_context), NULL, NULL);
+    //PyObject* gwc_c_api = PyCapsule_New(reinterpret_cast<void*>
+    //                            (hitcore_global_weights_context), NULL, NULL);
     PyObject* spc_c_api = PyCapsule_New(reinterpret_cast<void*>
                                 (hitcore_smartpointer_context), NULL, NULL);
     PyDict_SetItemString(hc_dict, "C_API_CREATE_EMPTY_HITCORE", ceh_c_api);
     PyDict_SetItemString(hc_dict, "C_API_GET_HITCORE", ghc_c_api);
     PyDict_SetItemString(hc_dict, "C_API_SET_HITCORE", shc_c_api);
     PyDict_SetItemString(hc_dict, "C_API_CHECK", check_c_api);
-    PyDict_SetItemString(hc_dict, "C_API_GLOBAL_WEIGHTS_CONTEXT", gwc_c_api);
     PyDict_SetItemString(hc_dict, "C_API_SMARTPOINTER_CONTEXT", spc_c_api);
-
+    setWeightContext();
     return module;
 }
 
