@@ -2,6 +2,7 @@ import sys
 import unittest
 import xboa.core
 from xboa.core import Hitcore
+from xboa.core import WeightContext
 
 class HitcoreTest(unittest.TestCase):
     def test_alloc(self):
@@ -86,6 +87,30 @@ class HitcoreTest(unittest.TestCase):
         Hitcore.clear_global_weights()
         for i, ref_hitcore in enumerate(hitcore_list):
             self.assertAlmostEqual(test_hitcore.get('global_weight'), 1.0)
+
+    def test_weight_context(self):
+        hitcore_list_1 = []
+        for spill in range(3):
+            for event in range(3):
+                for particle in range(3):
+                    hitcore_1 = Hitcore()
+                    hitcore_1.set('spill', spill)
+                    hitcore_1.set('event_number', event)
+                    hitcore_1.set('particle_number', particle)
+                    hitcore_list_1.append(hitcore_1)
+        print()
+        WeightContext.get_current_context().print_address()
+        WeightContext.set_current_context(WeightContext())
+        WeightContext.get_current_context().print_address()
+        for hitcore_1 in hitcore_list_1:
+            hitcore_1.set("global_weight", hitcore_1.get("spill") % 2)
+        for hitcore_1 in hitcore_list_1:
+            self.assertEqual(hitcore_1.get("global_weight"), hitcore_1.get("spill") % 2)
+        WeightContext.set_current_context(WeightContext())
+        WeightContext.get_current_context().print_address()
+        for hitcore_1 in hitcore_list_1:
+            self.assertEqual(hitcore_1.get("global_weight"), 1.0)
+
 
     def test_compare(self):
         hc1 = Hitcore()

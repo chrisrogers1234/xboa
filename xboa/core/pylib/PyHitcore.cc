@@ -148,6 +148,38 @@ PyObject* dump_memory(PyObject* self, PyObject *args, PyObject *kwds) {
     return memory;
 }
 
+PyWeightContext::PyWeightContext* pyCurrentContext = nullptr;
+
+PyObject* setWeightContext(PyObject* cls, PyObject *args) {
+    PyObject* pyobj;
+    int err = PyArg_ParseTuple(args, "O", &pyobj);
+    if(err == 0) {
+        PyErr_SetString(PyExc_KeyError,
+                "Failed to parse variables in function PyWeightContext.setCurrentContext");
+        return NULL;
+    }
+
+    // obj was wrong type - something horrible happened
+    if (!PyWeightContext::is_PyWeightContext(pyobj)) {
+        PyErr_SetString(PyExc_TypeError, "Failed to parse object as a PyWeightContext");
+        return NULL;
+    }
+    PyWeightContext::PyWeightContext* pywc = reinterpret_cast<PyWeightContext::PyWeightContext*>(pyobj);
+    SmartPointer<WeightContext> contextPtr = pywc->cppcontext_;
+    pyCurrentContext->cppcontext_.set(contextPtr.get());
+    Hitcore::weightContext.set(contextPtr.get());
+    Py_RETURN_NONE; // success, return None
+}
+
+PyObject* getWeightContext(PyObject* cls, PyObject* args) {
+    WeightContext* contextPtr = pyCurrentContext->cppcontext_.get();
+    PyWeightContext::PyWeightContext* pywc = PyWeightContext::create_empty_weightcontext();
+    pywc->cppcontext_.set(contextPtr);
+    return reinterpret_cast<PyObject*>(pywc);
+}
+
+
+
 const char* module_docstring = "_hitcore module for the Hitcore class";
 
 std::string class_docstring =
@@ -168,6 +200,8 @@ static PyMethodDef _methods[] = {
                           METH_VARARGS|METH_CLASS, set_variables_docstring.c_str()},
 {"clear_global_weights", (PyCFunction)clear_global_weights,
                           METH_VARARGS|METH_CLASS, clear_global_weights_docstring.c_str()},
+{"set_weight_context", (PyCFunction)setWeightContext,  METH_VARARGS|METH_KEYWORDS|METH_CLASS, NULL},
+{"get_weight_context", (PyCFunction)getWeightContext,  METH_VARARGS|METH_CLASS, NULL},
 {"dump_memory", (PyCFunction)dump_memory,
                           METH_VARARGS|METH_CLASS, dump_memory_docstring.c_str()},
 {NULL} // sentinel
@@ -286,6 +320,17 @@ static PyMethodDef _keywdarg_methods[] = {
 
 //std::map<WeightContext::HitId, double>* hitcore_global_weights_context =
 //                                         new std::map<WeightContext::HitId, double>();
+void setWeightContext() {
+    PyWeightContext::import_PyWeightContext();
+    PyObject* wc_module = PyImport_ImportModule("xboa.core._weight_context");
+    PyObject* wc_class = PyObject_GetAttrString(wc_module, "WeightContext");
+    PyObject* empty_tuple = PyTuple_New(0);
+    PyObject* pyobj_wc = PyObject_CallObject(wc_class, empty_tuple); // init
+    PyWeightContext::PyWeightContext* pywc = reinterpret_cast<PyWeightContext::PyWeightContext*>(pyobj_wc);
+    Hitcore::weightContext = pywc->cppcontext_;
+    pyCurrentContext =  pywc;
+}
+
 
 static void update_set_get_maps() {
     xboa::core::Hitcore::initialise_string_to_accessor_maps();
@@ -317,16 +362,6 @@ static struct PyModuleDef hitcoredef = {
     NULL,                /* m_clear */
     NULL,                /* m_free */
 };
-
-void setWeightContext() {
-    PyObject* wc_module = PyImport_ImportModule("xboa.core._weight_context");
-    PyObject* wc_class = PyObject_GetAttrString(wc_module, "WeightContext");
-    PyObject* get_context = PyObject_GetAttrString(wc_class, "get_current_context");
-    PyObject* empty_tuple = PyTuple_New(0);
-    PyObject* pyobj_wc = PyObject_CallObject(get_context, empty_tuple);
-    PyWeightContext::PyWeightContext* pywc = reinterpret_cast<PyWeightContext::PyWeightContext*>(pyobj_wc);
-    Hitcore::weightContext = pywc->cppcontext_;
-}
 
 PyMODINIT_FUNC PyInit__hitcore(void) {
     SmartPointer<Hitcore>::set_context(hitcore_smartpointer_context);

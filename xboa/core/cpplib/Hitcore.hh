@@ -335,7 +335,7 @@ class Hitcore {
     /** Print the global weights map */
     static void print_global_weights(std::ostream& out);
 
-    static SmartPointer<WeightContext> weightContext;
+    static SmartPointer<WeightContext>& weightContext;
 
   private:
     double x_;

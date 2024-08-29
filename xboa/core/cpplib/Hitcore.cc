@@ -25,7 +25,7 @@ std::map<std::string, Hitcore::get_int_function> Hitcore::get_int_map;
 std::map<std::string, Hitcore::get_dbl_function> Hitcore::get_dbl_map;
 std::map<std::string, Hitcore::set_int_function> Hitcore::set_int_map;
 std::map<std::string, Hitcore::set_dbl_function> Hitcore::set_dbl_map;
-SmartPointer<WeightContext> Hitcore::weightContext;
+SmartPointer<WeightContext>& Hitcore::weightContext = *(new SmartPointer<WeightContext>());
 
 
 void Hitcore::clear_global_weights() {

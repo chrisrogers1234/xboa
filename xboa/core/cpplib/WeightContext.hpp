@@ -19,11 +19,9 @@ namespace xboa {
 namespace core {
 
 WeightContext::WeightContext() {
-    //std::cerr << "Weight Context Ctor this " << this << " currentContext " << currentContext.get() << " " << &currentContext << std::endl;
 }
 
 WeightContext::~WeightContext() {
-    //std::cerr << "Weight Context Dtor this " << this << " currentContext " << currentContext.get() << " " << &currentContext << std::endl;
 }
 
 WeightContext::WeightContext(const WeightContext& rhs) :
@@ -138,6 +136,19 @@ void WeightContext::divide(const double& rhs) {
     defaultWeight_ /= rhs;
 }
 
+void WeightContext::op_not() {
+    for (std::map<HitId, double>::const_iterator it = globalWeightsContext_.begin(); it != globalWeightsContext_.end(); ++it) {
+        const HitId& id = it->first;
+        if (it->second == 0.0) {
+            globalWeightsContext_[id] = defaultWeight_;
+        } else {
+            globalWeightsContext_[id] = 0.0;
+        }
+    }
+    defaultWeight_ = 0.0;
+}
+
+
 double WeightContext::getDefaultWeight() const {
     return defaultWeight_;
 }
@@ -215,6 +226,12 @@ WeightContext WeightContext::Divide::operate(const WeightContext& lhs, const dou
 
 WeightContext WeightContext::Divide::operate(const double& lhs, const WeightContext& rhs) {
     throw(std::string("not implemented"));
+}
+
+WeightContext WeightContext::Not::operate(const WeightContext& lhs) {
+    WeightContext wc1 = lhs;
+    wc1.op_not();
+    return wc1;
 }
 
 

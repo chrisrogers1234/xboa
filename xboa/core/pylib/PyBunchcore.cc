@@ -525,12 +525,10 @@ static struct PyModuleDef bunchcoredef = {
     NULL,                /* m_free */
 };
 
-// This is a direct copy from pyHitcore. The aim is to pull the hitcore from
-// weightcontext.
 void setWeightContext() {
-    PyObject* wc_module = PyImport_ImportModule("xboa.core._weight_context");
-    PyObject* wc_class = PyObject_GetAttrString(wc_module, "WeightContext");
-    PyObject* get_context = PyObject_GetAttrString(wc_class, "get_current_context");
+    PyObject* hc_module = PyImport_ImportModule("xboa.core._hitcore");
+    PyObject* hc_class = PyObject_GetAttrString(hc_module, "Hitcore");
+    PyObject* get_context = PyObject_GetAttrString(hc_class, "get_weight_context");
     PyObject* empty_tuple = PyTuple_New(0);
     PyObject* pyobj_wc = PyObject_CallObject(get_context, empty_tuple);
     PyWeightContext::PyWeightContext* pywc = reinterpret_cast<PyWeightContext::PyWeightContext*>(pyobj_wc);

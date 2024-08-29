@@ -44,6 +44,7 @@ class WeightContext {
     class Subtract;
     class Multiply;
     class Divide;
+    class Not;
 
     /** Add the weight context to the contexts mapping */
     inline WeightContext();
@@ -90,6 +91,9 @@ class WeightContext {
     inline void multiply(const double& rhs);
     /** Divide each weight by rhs in this and also defaultWeight. */
     inline void divide(const double& rhs);
+
+    /** If weight is 0.0, acquire the default weight, else set weight to 0.0. Set DefaultWeight to 0.0. */
+    inline void op_not();
 
     /** Get default weight */
     inline double getDefaultWeight() const;
@@ -145,6 +149,14 @@ class WeightContext::Divide  {
     inline WeightContext operate(const WeightContext& lhs, const double& rhs);
     inline WeightContext operate(const double& lhs, const WeightContext& rhs);
 };
+
+class WeightContext::Not  {
+  public:
+    Not() {}
+    inline WeightContext operate(const WeightContext& lhs);
+};
+
+
 
 typedef WeightContext::HitId HitId;
 
