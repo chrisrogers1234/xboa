@@ -338,7 +338,7 @@ PyWeightContext* C_API::create_empty_weightcontext() {
     PyWeightContext* pywc = new PyWeightContext();
     pywc->cppcontext_ = SmartPointer<WeightContext>(new WeightContext());
     Py_SET_REFCNT(pywc, 1);
-    Py_TYPE(pywc) = &PyWeightContextType;
+    Py_SET_TYPE(pywc, &PyWeightContextType);
     return pywc;
 }
 
