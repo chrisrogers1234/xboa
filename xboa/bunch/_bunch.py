@@ -44,13 +44,18 @@ except ImportError:
 import xboa.common as Common
 import xboa.common.config as config
 import xboa.hit.factory
-from xboa.hit.factory import MausRootReconHitFactory
-from xboa.hit.factory import MausRootHitFactory
 from xboa.hit import Hit
 from xboa.hit import BadEventError 
 from xboa.core import Hitcore
 from xboa.core import Bunchcore
 from xboa.common import rg as rg
+
+try: # requires root
+    from xboa.hit.factory import MausRootReconHitFactory
+    from xboa.hit.factory import MausRootHitFactory
+except ImportError:
+    pass
+
 
 class Bunch:
   """
