@@ -398,7 +398,8 @@ class Hit(object):
     if( format.find('mars') > -1 ):
       self.set('pid', Common.mars_pid_to_pdg [self.get('pid')])
 
-  def write_list_builtin_formatted(list_of_hits, file_type_string, file_name, user_comment=None):
+  @classmethod
+  def write_list_builtin_formatted(cls, list_of_hits, file_type_string, file_name, user_comment=None):
     """
     Write a list of hits to a file formatted according to built-in file_type format
 
@@ -410,6 +411,8 @@ class Hit(object):
       aHit.write_list_builtin_formatted([hit1, hit2] 'icool_for009', 'for009_dat') 
     would write hit1, hit2 in icool_for009 format to for009_dat
     """
+    if file_type_string not in cls.__file_types:
+      raise IOError(f"Did not recognise file type {file_type_string}, should be one of {cls.__file_types}")
     if( file_type_string.find('maus_root') > -1 ):
       raise IOError("Can't write maus_root formats")
     filehandle = Hit.open_filehandle_for_writing(file_type_string, file_name, user_comment)
@@ -440,7 +443,6 @@ class Hit(object):
         print('Warning - failed to write ',hit_out)
     filehandle.close()
     return
-  write_list_builtin_formatted = staticmethod(write_list_builtin_formatted)
 
   def open_filehandle_for_writing(file_type_string, file_name, user_comment=None):
     """
@@ -791,7 +793,7 @@ class Hit(object):
   
   #internal data
   #information on available types
-  __file_types           = ['icool_for009', 'icool_for003', 'g4beamline_bl_track_file', 'mars_1'] #'opal_loss'
+  __file_types           = ['icool_for009', 'icool_for003', 'g4beamline_bl_track_file', 'g4beamline_bl_track_file_2', 'mars_1'] #'opal_loss'
   __file_types          += ['maus_json_virtual_hit', 'maus_json_primary', 'maus_json_special_virtual_hit']
   try:
     config.has_maus()
@@ -851,6 +853,7 @@ class Hit(object):
                          'ex', 'ey', 'ez', '', 'sx', 'sy', 'sz'],
     'icool_for003' : ['eventNumber', 'particleNumber', 'pid', 'status', 't', 'local_weight', 'x', 'y', 'z', 'px', 'py', 'pz', 'sx', 'sy', 'sz'],
     'g4beamline_bl_track_file'  : ['x','y','z','px','py','pz','t','pid','eventNumber','particleNumber', '','local_weight'],
+    'g4beamline_bl_track_file_2'  : ['x','y','z','px','py','pz','t','pid','eventNumber','particleNumber', '','local_weight', '', '', ''],
     'ZGoubi'       : [],
     'Turtle'       : [],
     'MadX'         : [],
@@ -862,6 +865,7 @@ class Hit(object):
                          'ex':'GV/m', 'ey':'GV/m', 'ez':'GV/m', 'sx':'', 'sy':'', 'sz':'', '':''},
     'icool_for003' : {'eventNumber':'', 'particleNumber':'', 'pid':'', 'status':'', 't':'s', 'local_weight':'', 'x':'m', 'y':'m', 'z':'m', 'px':'GeV/c', 'py':'GeV/c', 'pz':'GeV/c', 'sx':'', 'sy':'', 'sz':''},
     'g4beamline_bl_track_file'  : {'x':'mm','y':'mm','z':'mm','px':'MeV/c','py':'MeV/c','pz':'MeV/c','t':'ns','pid':'','eventNumber':'','station':'','local_weight':'', 'particleNumber':''},
+    'g4beamline_bl_track_file_2'  : {'x':'mm','y':'mm','z':'mm','px':'MeV/c','py':'MeV/c','pz':'MeV/c','t':'ns','pid':'','eventNumber':'','station':'','local_weight':'', 'particleNumber':''},
     'ZGoubi'       : {},
     'Turtle'       : {},
     'MadX'         : {},
@@ -874,6 +878,7 @@ class Hit(object):
     'icool_for003':'<user>\n0. 0. 0. 0. 0. 0. 0. 0.\n',
     'icool_for009':'#<user>\n#  units = [s] [m]  [GeV/c] [T] [V/m]\nevt par typ  flg   reg    time        x           y           z           Px          Py          Pz          Bx          By          Bz          wt          Ex          Ey          Ez          arclength   polX        polY        polZ\n',
     'g4beamline_bl_track_file':'#BLTrackFile <user>\n#x y z Px Py Pz t PDGid EvNum TrkId Parent weight\n',
+    'g4beamline_bl_track_file_2':'#BLTrackFile <user>\n#x y z Px Py Pz t PDGid EvNum TrkId Parent weight\n',
     'ZGoubi':'',
     'Turtle':'',
     'MadX':'',
@@ -896,6 +901,7 @@ class Hit(object):
     'icool_for009': __event_cmp,
     'icool_for003': __event_cmp,
     'g4beamline_bl_track_file': __event_cmp,
+    'g4beamline_bl_track_file_2': __event_cmp,
     'ZGoubi': __event_cmp,
     'Turtle': __event_cmp,
     'MadX': __event_cmp,

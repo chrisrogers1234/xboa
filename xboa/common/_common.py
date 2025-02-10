@@ -1080,7 +1080,7 @@ def make_root_ellipse_function(mean, cov, contours=None, xmin=-1e3, xmax=1e3, ym
 
 def common_overview_doc(verbose = False):
   """Creates some summary documentation for the common module. If verbose is True then will also print any functions or data not included in summary"""
-  common_doc = '\cCommon module contains a number of useful interfaces, defaults, data and ancillary functions that support the rest of the XBOA package.\n' 
+  common_doc = 'Common module contains a number of useful interfaces, defaults, data and ancillary functions that support the rest of the XBOA package.\n'
 
   name_list = ['math', 'root', 'matplot', 'data', 'defaults', 'other_stuff']
   function_list = {

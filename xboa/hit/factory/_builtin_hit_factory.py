@@ -72,6 +72,7 @@ class BuiltinHitFactory(LineFactoryBase):
                            'ex', 'ey', 'ez', '', 'sx', 'sy', 'sz'],
       'icool_for003' : ['eventNumber', 'particleNumber', 'pid', 'status', 't', 'local_weight', 'x', 'y', 'z', 'px', 'py', 'pz', 'sx', 'sy', 'sz'],
       'g4beamline_bl_track_file'  : ['x','y','z','px','py','pz','t','pid','eventNumber','particleNumber', '','local_weight'],
+      'g4beamline_bl_track_file_2'  : ['x','y','z','px','py','pz','t','pid','eventNumber','particleNumber', '','local_weight', '', '', ''],
       'mars_1'       : ['eventNumber','pid','x','y','z','px','py','pz','energy','ct','local_weight']
     }
 
@@ -81,12 +82,14 @@ class BuiltinHitFactory(LineFactoryBase):
                            'ex':'GV/m', 'ey':'GV/m', 'ez':'GV/m', 'sx':'', 'sy':'', 'sz':'', '':''},
       'icool_for003' : {'eventNumber':'', 'particleNumber':'', 'pid':'', 'status':'', 't':'s', 'local_weight':'', 'x':'m', 'y':'m', 'z':'m', 'px':'GeV/c', 'py':'GeV/c', 'pz':'GeV/c', 'sx':'', 'sy':'', 'sz':''},
       'g4beamline_bl_track_file'  : {'x':'mm','y':'mm','z':'mm','px':'MeV/c','py':'MeV/c','pz':'MeV/c','t':'ns','pid':'','eventNumber':'','station':'','local_weight':'', 'particleNumber':''},
+      'g4beamline_bl_track_file_2'  : {'x':'mm','y':'mm','z':'mm','px':'MeV/c','py':'MeV/c','pz':'MeV/c','t':'ns','pid':'','eventNumber':'','station':'','local_weight':'', 'particleNumber':''},
       'mars_1'       : {'eventNumber':'','pid':'','x':'mm','y':'mm','z':'mm','px':'GeV/c','py':'GeV/c','pz':'GeV/c','energy':'GeV','ct':'cm','local_weight':''},
     }
 
     file_mass_shell     = {'icool_for009':'energy',
                            'icool_for003':'energy',
                            'g4beamline_bl_track_file':'energy', 
+                           'g4beamline_bl_track_file_2':'energy',
                            'mars_1':'energy'}
 
 

@@ -16,12 +16,14 @@
 #
 
 try:
+    import numpy
     import matplotlib
     import matplotlib.pyplot as pyplot
 except ImportError:
     pass
 import xboa.common
 import xboa.common.config
+import xboa.common.utils
 
 
 def make_histogram(x_float_list, x_axis_string, n_x_bins,
@@ -192,6 +194,52 @@ def make_scatter(x_float_list, x_axis_string, y_float_list, y_axis_string, fig_i
     pyplot.xlabel(x_axis_string)
     pyplot.ylabel(y_axis_string)
     return fig_index
+
+def plot_hist2d_ratio(axes, h1, h2, xedges, yedges, on_nan=0.0, hist_args={}):
+    """
+    Plot the ratio of two histograms h1 and h2 as a histogram
+
+    For each bin in h1 and h2, plot h1[i][j]/h2[i][j]
+
+    e.g.
+    hist2d_1 = axes1.hist2d(x_1, y_1, [xedges, yedges])
+    hist2d_2 = axes2.hist2d(x_2, y_2, [xedges, yedges])
+    hist2d_ratio = hist2d(axes3, hist2d_1[0], hist2d_2[0], hist2d_1[1], hist2d_1[2])
+
+    Returns like a Axes.hist2d tuple:
+        - h: 2D array with bin weights
+        - xedges: edge of the x bins
+        - yedges: edge of the y bins
+        - image: matplotlib QuadMesh type
+    If h2 has 0 elements, the output will always return 0
+    """
+    xboa.common.utils.require_modules(["numpy", "matplotlib"])
+    if len(h1) != len(h2):
+        raise ValueError(f"h1 and h2 have different number of rows: {len(h1)} != {len(h2)}")
+    for i, item in enumerate(h1):
+        if len(h1[i]) != len(h2[i]):
+            raise ValueError(f"Row {i} had wrong number of columns: {len(h1[i]) != {len(h2[i])}}")
+    h1 = numpy.array(h1).transpose().flatten()
+    h2 = numpy.array(h2).transpose().flatten()
+    nan_index = []
+    for i, x2 in enumerate(h2):
+        if x2 == 0.0:
+            h2[i] = 1.0
+            h1[i] = 0.0
+            nan_index.append(i)
+    h3 = h1/h2
+    for i in nan_index:
+        h3[i] = on_nan
+    # layout is x = [x0, x1, ... , xn,   x0, x1, ... , xn,   ...]
+    x_a = [(xedges[i]+e1)/2 for i, e1 in enumerate(xedges[1:])]
+    x_a = x_a*(len(yedges)-1)
+    # layout is x = [y0, y0, ... , y0,   y1, y1, ... , y1,   ...,   yn, yn, ... yn]
+    y_a = []
+    for i, e1 in enumerate(yedges[1:]):
+        y_a += [(yedges[i]+e1)/2]*(len(xedges)-1)
+    hist2d_3 = axes.hist2d(x_a, y_a, bins=[xedges, yedges], weights=h3, **hist_args)
+    return hist2d_3
+
 
 def wait_for_matplot(block=False):
     """

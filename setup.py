@@ -29,7 +29,6 @@ hitcore_mod = Extension(
         'xboa/core/pylib/PyHitcore.cc',
         'xboa/core/cpplib/Hitcore.cc',
         'xboa/core/utils/SmartPointer.cc',
-        #'xboa/core/cpplib/WeightContext.cc'
     ],
     include_dirs = ['xboa/core'],
 )
@@ -50,7 +49,6 @@ bunchcore_mod = Extension(
         'xboa/core/cpplib/Bunchcore.cc',
         'xboa/core/cpplib/Hitcore.cc',
         'xboa/core/utils/SmartPointer.cc',
-        #'xboa/core/cpplib/WeightContext.cc'
     ],
     include_dirs = ['xboa/core'],
 )

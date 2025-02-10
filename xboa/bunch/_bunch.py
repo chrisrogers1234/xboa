@@ -449,7 +449,7 @@ class Bunch:
       raise KeyError('Could not find filetype '+file_format_type_string+' - Options are '+str(Hit.file_types()))
     for dummy in range(Bunch.__number_of_header_lines[file_format_type_string]):
       filehandle.readline()
-    if file_format_type_string == 'g4beamline_bl_track_file': 
+    if file_format_type_string == 'g4beamline_bl_track_file' or file_format_type_string == 'g4beamline_bl_track_file_2':
       open_file  = filehandle
       filehandle = io.StringIO()
       try:
@@ -1881,7 +1881,7 @@ class Bunch:
       return {}
     return means
     
-  __number_of_header_lines = {'icool_for009':3, 'icool_for003':2, 'g4beamline_bl_track_file':0,'zgoubi':0, 'turtle':0, 'madx':0,'mars_1':0, 'maus_json_virtual_hit':0, 'maus_json_primary':0, 'opal_loss':1}
+  __number_of_header_lines = {'icool_for009':3, 'icool_for003':2, 'g4beamline_bl_track_file':0, 'g4beamline_bl_track_file_2':0, 'zgoubi':0, 'turtle':0, 'madx':0,'mars_1':0, 'maus_json_virtual_hit':0, 'maus_json_primary':0, 'opal_loss':1}
   __axis_list              = ['x','y','z','t', 'ct']
   __get_dict               = {'angular_momentum':__ang_mom_for_get, 'emittance':get_emittance, 'dispersion':__dispersion_for_get, 
                              'dispersion_prime':__dispersion_prime_for_get, 'beta':get_beta, 'alpha':get_alpha, 'gamma':get_gamma, 
