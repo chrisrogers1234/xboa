@@ -94,6 +94,11 @@ PyObject* setWeight(PyObject* self, PyObject *args, PyObject *kwds) {
     Py_RETURN_NONE; // success, return None
 }
 
+// A whole world of pain to make a non-const c-string. There must be an easier way!
+char* cstring(std::string word) {
+    char* dest = const_cast<char*>(word.data());
+    return dest;
+}
 
 PyObject* getWeight(PyObject* self, PyObject *args, PyObject *kwds) {
     // self was not initialised - something horrible happened
@@ -103,11 +108,14 @@ PyObject* getWeight(PyObject* self, PyObject *args, PyObject *kwds) {
     }
     PyWeightContext* pywc = reinterpret_cast<PyWeightContext*>(self);
     int spill, event, particle;
-    std::string argnames[] = {"spill", "event_number", "particle_number", "eventNumber", "particleNumber"};
-    char* c_argnames[] = {argnames[0].data(), argnames[1].data(), argnames[2].data(),
-                          argnames[3].data(), argnames[4].data(), NULL};
+    //std::vector<std::string> argnames = {"spill", "event_number", "particle_number", "eventNumber", "particleNumber"};
+    std::vector<char*> c_argnames = {cstring("spill"), cstring("event_number"),
+        cstring("particle_number"), cstring("eventNumber"), cstring("particleNumber")};
+
+    //char* c_argnames[] = {cstring(argnames[0]), argnames[1].data(), argnames[2].data(),
+    //                      argnames[3].data(), argnames[4].data(), NULL};
     int err = PyArg_ParseTupleAndKeywords(args, kwds, "|iiiii",
-               c_argnames,
+               &c_argnames[0],
                &spill, &event, &particle, &event, &particle);
     if(err == 0) {
         PyErr_SetString(PyExc_KeyError,
