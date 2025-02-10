@@ -37,7 +37,8 @@ namespace PyBunchcore {
 PyObject *alloc(PyTypeObject *type, Py_ssize_t nitems) {
     PyBunchcore* bc = new PyBunchcore();
     Py_SET_REFCNT(bc, 1);
-    Py_TYPE(bc) = type;
+    // Py_TYPE(bc) = type; // removed following PEP674
+    Py_SET_TYPE(bc, type);
     return reinterpret_cast<PyObject*>(bc);
 }
 

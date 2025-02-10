@@ -163,7 +163,8 @@ PyObject *_alloc(PyTypeObject *type, Py_ssize_t nitems) {
     PyWeightContext* pywc = new PyWeightContext();
     pywc->cppcontext_ = SmartPointer<WeightContext>(new WeightContext());
     Py_SET_REFCNT(pywc, 1);
-    Py_TYPE(pywc) = type;
+    // Py_TYPE(pywc) = type; // fixed following PEP674
+    Py_SET_TYPE(pywc, type);
     return reinterpret_cast<PyObject*>(pywc);
 }
 
