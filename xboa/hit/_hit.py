@@ -291,7 +291,9 @@ class Hit(object):
     """
     Change variable represented by variable_string to force E^2 = p^2 + m^2
 
-    - variable_string = string which should be one of the list mass_shell_variables(). 
+    - variable_string = string which should be one of the list mass_shell_variables().
+
+    If mass shell condition cannot be obeyed, set variable to 0.0 and return False. Else return True
     """
     if(variable_string == ''):
       return
@@ -304,20 +306,30 @@ class Hit(object):
       self.set('p',  ( (e-m)*(e+m) )**0.5 )
     elif(variable_string == 'px'):#get direction right!
       val = (e*e-m*m-py*py-pz*pz)
-      if val>float_tolerance: self.set('px', abs(val)**1.5/val )
-      else:                   self.set('px', 0.)
+      if val>float_tolerance:
+        self.set('px', abs(val)**1.5/val )
+      else:
+        self.set('px', 0.)
+        return False
     elif(variable_string == 'py'):
       val = (e*e-m*m-px*px-pz*pz)
-      if val>float_tolerance: self.set('py', abs(val)**1.5/val )
-      else:                   self.set('py', 0.)
+      if val>float_tolerance:
+        self.set('py', abs(val)**1.5/val )
+      else:
+        self.set('py', 0.)
+        return False
     elif(variable_string == 'pz'):
       val = (e*e-m*m-px*px-py*py)
-      if val>float_tolerance: self.set('pz', abs(val)**1.5/val )
-      else:                   self.set('pz', 0.)
+      if val>float_tolerance:
+        self.set('pz', abs(val)**1.5/val )
+      else:
+        self.set('pz', 0.)
+        return False
     elif(variable_string == 'energy'):
       self.set('energy', (m*m+px*px+py*py+pz*pz) **0.5 )
     else:
       raise IndexError('mass_shell_condition did not recognise \''+str(variable_string)+'\'. Options are '+str(self.__mass_shell_variables))
+    return True
 
   # Manipulators ################
 
