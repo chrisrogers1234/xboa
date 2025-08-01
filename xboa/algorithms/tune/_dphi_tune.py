@@ -22,7 +22,7 @@ class DPhiTuneFinder(object):
         self.axis2 = ""
 
     def get_tune(self, tune_tolerance = None):
-        if self.u == None or self.up == None:
+        if self.u is None or self.up is None:
             raise ValueError("Missing data set for Tune calculation")
 
         points = list(zip(self.u, self.up))
