@@ -36,6 +36,7 @@ except ImportError:
   pass
 try:
   import numpy
+  import matplotlib
   from numpy import matrix
   from numpy import linalg
 except ImportError:
@@ -319,6 +320,7 @@ class Bunch:
       hit_list = [hit for hit in hit_list if test_function == None or test_function(hit)]
       return Bunch.new_from_hits(hit_list)
     bunch = Bunch()
+    bad_event_counter = 0
     for file_name in file_name_list:
         print("Loading", file_name)
         filehandle = Bunch.setup_file(file_type_string, file_name)
@@ -328,10 +330,13 @@ class Bunch:
           except(EOFError):
               break
           except(BadEventError):
+              bad_event_counter += 1
               continue
           if (not test_function) or test_function(hit):
               bunch.append(hit)
         filehandle.close()
+    if bad_event_counter:
+        print(f"Warning - failed to load {bad_event_counter} hits during load")
     return bunch
 
   @classmethod
@@ -352,12 +357,22 @@ class Bunch:
     for dummy in range(number_of_skip_lines):
       filehandle.readline()
     bunch = Bunch()
+    bad_event_counter = 0
     while(len(bunch.__hits) < number_of_hits or number_of_hits < 0):
-      try:    hit = Hit.new_from_read_user(format_list, format_units_dict, filehandle)
-      except(EOFError): break
-      if   test_function == None: bunch.append(hit)
-      elif test_function(hit):    bunch.append(hit)
+      try:
+        hit = Hit.new_from_read_user(format_list, format_units_dict, filehandle)
+      except(EOFError):
+        break
+      except(BadEventError):
+        bad_event_counter += 1
+        continue
+      if test_function == None:
+        bunch.append(hit)
+      elif test_function(hit):
+        bunch.append(hit)
     filehandle.close()
+    if bad_event_counter:
+        print(f"Warning - failed to load {bad_event_counter} hits during load")
     return bunch
 
   @classmethod
@@ -1778,6 +1793,7 @@ class Bunch:
     if comparator != None:
       sort = False
     figure = Common.make_matplot_histogram( x_points, x_name, int(n_bins), y_points, y_name, int(n_bins), weight_list=weights)
+    return figure
 
   def matplot_scatter_graph(self, x_axis_string, y_axis_string, x_axis_units='', y_axis_units='', include_weightless=True):
     """
@@ -1804,7 +1820,8 @@ class Bunch:
     if not x_axis_units == '': x_axis_string += " ["+x_axis_units+"] "
     if not y_axis_units == '': y_axis_string += " ["+y_axis_units+"] "
     graph = Common.make_matplot_scatter(x_points, x_axis_string, y_points, y_axis_string)
-  
+    return matplotlib.pyplot.figure(graph)
+
   def matplot_graph(bunches, x_axis_string, x_axis_list, y_axis_string, y_axis_list, x_axis_units='', y_axis_units='', comparator=None):
     """
     Prints a graph of Bunch.get(...) data over a dict of bunches.
@@ -1841,7 +1858,7 @@ class Bunch:
     if not x_axis_units == '': x_axis_string += " ["+x_axis_units+"] "
     if not y_axis_units == '': y_axis_string += " ["+y_axis_units+"] "
     graph = Common.make_matplot_graph(x_points, x_axis_string, y_points, y_axis_string)
-    return graph
+    return matplotlib.pyplot.figure(graph)
   matplot_graph = staticmethod(matplot_graph)
 
 
